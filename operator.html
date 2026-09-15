@@ -215,6 +215,12 @@ tbody tr:hover{background:var(--off-white);}
 .customer-row:hover{border-color:var(--gold);box-shadow:var(--shadow-sm);}
 .c-avatar{width:42px;height:42px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:1.1rem;flex-shrink:0;}
 .tier-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.68rem;font-weight:700;}
+.qty-ctrl{display:inline-flex;align-items:center;border:1.5px solid var(--line-2);border-radius:999px;overflow:hidden;background:#fff;}
+.qty-ctrl button{width:26px;height:26px;font-weight:800;color:var(--navy);cursor:pointer;}
+.qty-ctrl button:hover{background:var(--surface-2);}
+.qty-ctrl span{padding:0 8px;font-weight:800;font-size:.85rem;min-width:22px;text-align:center;display:inline-block;}
+.no-type-btn{opacity:.55;}
+.no-type-btn.active{opacity:1;background:var(--navy);color:#fff;}
 .tier-Standard{background:var(--surface-2);color:var(--muted);}
 .tier-Royal{background:var(--blue-bg);color:var(--blue);}
 .tier-Queen{background:var(--gold-light);color:var(--gold-2);}
@@ -265,7 +271,11 @@ tbody tr:hover{background:var(--off-white);}
     </div>
     <nav class="sb-nav">
       <div class="sb-section">Operations</div>
-      <a class="active" onclick="showSection('orders',this)">
+      <a class="active" onclick="showSection('neworder',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Order
+      </a>
+      <a onclick="showSection('orders',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Orders <span id="sbPendingCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(201,151,45,.2);color:var(--gold);border:none;display:none"></span>
       </a>
@@ -323,8 +333,142 @@ tbody tr:hover{background:var(--off-white);}
 
     <div class="content">
 
+      <!-- NEW ORDER (staff POS: phone / walk-in / messaged orders) -->
+      <div class="section-view active" id="sec-neworder">
+        <div class="grid g2" style="align-items:start;gap:16px">
+          <!-- LEFT: customer + cart -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+
+            <div class="card">
+              <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:10px">1. Customer</h3>
+              <div id="noCustomerSelected">
+                <input class="input" type="text" id="noCustomerSearch" placeholder="Search by name or phone…" oninput="renderCustomerPicker()"/>
+                <div id="noCustomerResults" style="margin-top:8px;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+                <button class="btn btn-sm mt-3" onclick="toggleNewCustomerForm(true)">+ New Customer</button>
+                <div id="noNewCustomerForm" style="display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+                  <div class="grid g2" style="gap:10px">
+                    <input class="input" type="text" id="ncName" placeholder="Full name *"/>
+                    <input class="input" type="text" id="ncPhone" placeholder="Mobile number *"/>
+                  </div>
+                  <input class="input mt-2" type="email" id="ncEmail" placeholder="Email (optional)"/>
+                  <input class="input mt-2" type="text" id="ncAddress" placeholder="Address (optional)"/>
+                  <div class="flex gap-2 mt-2">
+                    <button class="btn btn-navy btn-sm" onclick="createAndSelectCustomer()">Create & Select</button>
+                    <button class="btn btn-sm" onclick="toggleNewCustomerForm(false)">Cancel</button>
+                  </div>
+                </div>
+              </div>
+              <div id="noCustomerSelectedCard" style="display:none;background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 14px">
+                <div class="flex justify-between items-center">
+                  <div><div class="fw8 txt-navy" id="noSelCustName">—</div><div class="fs-xs muted" id="noSelCustContact">—</div></div>
+                  <button class="btn btn-sm" onclick="clearSelectedCustomer()">Change</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:10px">2. Products</h3>
+              <div id="noProductGrid" class="grid g2" style="gap:10px">
+                <div class="empty-state" style="grid-column:span 2;padding:16px"><div class="spinner-inline"></div> Loading products…</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT: cart + order details -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:10px">3. Cart</h3>
+              <div id="noCartEmpty" class="empty-state" style="padding:24px"><div class="ei">🛒</div><p>No items yet — add products on the left.</p></div>
+              <table id="noCartTable" style="display:none">
+                <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th><th></th></tr></thead>
+                <tbody id="noCartBody"></tbody>
+              </table>
+              <div class="flex justify-between fw8 txt-navy mt-3" style="border-top:1px solid var(--line);padding-top:10px;font-size:1.1rem">
+                <span>Total</span><span id="noCartTotal">₱0.00</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:10px">4. Order Type & Fulfillment</h3>
+              <div class="flex gap-2" style="margin-bottom:12px">
+                <button class="btn btn-sm" id="noTypeDelivery" onclick="setOrderType('delivery')" style="flex:1">🛵 Delivery</button>
+                <button class="btn btn-sm" id="noTypePickup" onclick="setOrderType('pickup')" style="flex:1">🏪 Pickup</button>
+              </div>
+              <div id="noDeliveryFields">
+                <div class="field">
+                  <label class="fs-sm fw7 txt-navy">Barangay / Area</label>
+                  <select class="input" id="noBarangay">
+                    <option value="">Select area…</option>
+                    <optgroup label="Makati — no minimum">
+                      <option value="San Antonio Village">San Antonio Village</option>
+                    </optgroup>
+                    <optgroup label="Makati — min. 10 x 5-gal (combined)">
+                      <option>Salcedo Village</option><option>Legaspi Village</option><option>Bel-Air</option>
+                      <option>Ayala CBD</option><option>San Lorenzo</option><option>Urdaneta</option>
+                      <option>Dasmariñas</option><option>Forbes Park</option><option>Magallanes</option>
+                      <option>Poblacion</option><option>Olympia</option><option>La Paz</option>
+                      <option>Valenzuela</option><option>Singkamas</option><option>Carmona</option>
+                      <option>Tejeros</option><option>San Isidro</option><option>Pio del Pilar</option>
+                      <option>Kasilawan</option><option>Sta. Cruz</option><option>Palanan</option>
+                      <option>Bangkal</option><option>Guadalupe Viejo</option><option>Guadalupe Nuevo</option>
+                      <option>Pinagkaisahan</option>
+                    </optgroup>
+                    <optgroup label="Manila — min. 10 x 5-gal (combined)">
+                      <option>Malate</option><option>Ermita</option><option>Paco</option>
+                      <option>Sta. Ana</option><option>San Andres Bukid</option><option>Pandacan</option>
+                      <option>Intramuros</option><option>Manila City Hall area</option>
+                    </optgroup>
+                    <optgroup label="Pasay — min. 10 x 5-gal (combined)">
+                      <option>PICC / CCP Complex</option><option>Pasay Rotonda</option><option>MOA area</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="fs-sm fw7 txt-navy">Delivery Address</label>
+                  <input class="input" type="text" id="noAddress" placeholder="Unit / house no., street"/>
+                </div>
+                <div class="field">
+                  <label class="fs-sm fw7 txt-navy">Time Window</label>
+                  <select class="input" id="noWindow">
+                    <option>8 AM – 10 AM</option>
+                    <option selected>2 PM – 4 PM</option>
+                    <option>4 PM – 6 PM</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label class="fs-sm fw7 txt-navy" id="noDateLabel">Delivery Date</label>
+                <input class="input" type="date" id="noDate"/>
+              </div>
+              <div class="field">
+                <label class="fs-sm fw7 txt-navy">Notes (optional)</label>
+                <textarea class="input" id="noNotes" rows="2" style="resize:vertical"></textarea>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:10px">5. Payment</h3>
+              <div class="field">
+                <label class="fs-sm fw7 txt-navy">Payment Method</label>
+                <select class="input" id="noPaymentMethod">
+                  <option value="cash">Cash</option>
+                  <option value="gcash">GCash</option>
+                  <option value="cod">Cash on Delivery</option>
+                </select>
+              </div>
+              <label class="flex items-center gap-2 fs-sm mt-2" style="cursor:pointer">
+                <input type="checkbox" id="noMarkPaid"/> Mark as paid now
+              </label>
+              <div id="noOrderMsg" class="msg error" style="display:none;margin-top:12px"></div>
+              <button class="btn btn-gold" style="width:100%;margin-top:14px" onclick="submitNewOrder()">✅ Place Order</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /neworder -->
+
       <!-- ORDERS -->
-      <div class="section-view active" id="sec-orders">
+      <div class="section-view" id="sec-orders">
         <!-- Stats -->
         <div class="grid g4 mt-0" style="margin-bottom:20px" id="statsRow">
           <div class="stat-card"><div class="stat-ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-val" id="statPending">—</div><div class="stat-lbl">Pending</div></div></div>
@@ -553,6 +697,7 @@ async function initDashboard(staff) {
   }
 
   await loadOrders();
+  initNewOrder(); // New Order is the default landing tab
 
   // Poll for new/updated orders every 15s. (Realtime isn't available here: the
   // clean_queen schema isn't exposed, so all reads go through public RPCs.)
@@ -583,6 +728,7 @@ function showSection(id, linkEl) {
   if (linkEl) linkEl.classList.add('active');
 
   const titles = {
+    neworder: ['New Order','Phone, walk-in, or messaged orders'],
     orders: ['Orders','Manage incoming orders'],
     customers: ['Customers','All registered customers'],
     closing: ['Daily Closing','Meter readings, sales & credit for the day'],
@@ -592,6 +738,7 @@ function showSection(id, linkEl) {
   document.getElementById('pageTitle').textContent = title;
   document.getElementById('pageSubtitle').textContent = sub;
 
+  if (id === 'neworder') initNewOrder();
   if (id === 'customers') loadCustomers();
   if (id === 'closing') initClosingDay();
   if (id === 'reports') initReportsDates();
@@ -750,7 +897,7 @@ function renderOrders() {
       <td><div class="customer-info"><div class="cname">${o.customer?.name||'—'}</div><div class="cphone">${o.customer?.phone||''}</div></div></td>
       <td><span class="product-tag fs-xs">${items}</span></td>
       <td class="fw7 txt-navy">₱${Number(o.total_amount).toLocaleString()}</td>
-      <td class="fs-xs muted">${o.delivery_date||'—'}<br>${o.delivery_window||''}</td>
+      <td class="fs-xs muted">${o.order_type === 'pickup' ? '🏪 Pickup' : '🛵 Delivery'}<br>${o.delivery_date||'—'} ${o.delivery_window||''}</td>
       <td><span class="badge ${STATUS_BADGE[o.status]||''}">${STATUS_LABELS[o.status]||o.status}</span></td>
       <td><div class="flex gap-2">${nextBtn}<button class="btn btn-sm" onclick="openModal('${o.id}')">Details</button></div></td>
     </tr>`;
@@ -1247,6 +1394,211 @@ function downloadCSV(filename, rows2D) {
   a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ==============================================================
+// NEW ORDER — staff POS (phone / walk-in / messaged orders)
+// Writes to the SAME orders/order_items tables the customer's own
+// "Order Water" flow uses — one source of truth, two entry points.
+// ==============================================================
+let noProducts = [];
+let noCart = [];                // [{product_id, name, emoji, price, type, quantity}]
+let noSelectedCustomer = null;  // {id, name, phone, email, address}
+let noOrderType = 'delivery';
+let noInitialized = false;
+
+async function initNewOrder() {
+  if (!allCustomers.length) await loadCustomers();
+  if (!noProducts.length) {
+    const { data } = await db.rpc('cq_get_products');
+    noProducts = (data || []).filter(p => p.is_active);
+    renderNoProductGrid();
+  }
+  if (!noInitialized) {
+    noInitialized = true;
+    setOrderType('delivery');
+    const d = document.getElementById('noDate');
+    if (!d.value) d.value = todayStr();
+  }
+  renderCustomerPicker();
+}
+
+function renderNoProductGrid() {
+  document.getElementById('noProductGrid').innerHTML = noProducts.map(p => `
+    <div class="customer-row" style="cursor:pointer;padding:10px 12px" onclick="addToCart('${p.id}')">
+      <div class="c-avatar" style="background:var(--surface-2);font-size:1.2rem">${p.emoji || '💧'}</div>
+      <div style="flex:1">
+        <div class="fw7 fs-sm txt-navy">${p.name}</div>
+        <div class="fs-xs muted">₱${Number(p.price).toLocaleString()} / ${p.unit}</div>
+      </div>
+      <button class="btn btn-sm btn-navy">+ Add</button>
+    </div>`).join('');
+}
+
+function addToCart(productId) {
+  const p = noProducts.find(x => x.id === productId);
+  if (!p) return;
+  const existing = noCart.find(c => c.product_id === productId);
+  if (existing) existing.quantity += 1;
+  else noCart.push({ product_id: p.id, name: p.name, emoji: p.emoji, price: Number(p.price), type: p.type, quantity: 1 });
+  renderCart();
+}
+
+function changeCartQty(productId, delta) {
+  const item = noCart.find(c => c.product_id === productId);
+  if (!item) return;
+  item.quantity = Math.max(1, item.quantity + delta);
+  renderCart();
+}
+
+function removeFromCart(productId) {
+  noCart = noCart.filter(c => c.product_id !== productId);
+  renderCart();
+}
+
+function renderCart() {
+  const empty = document.getElementById('noCartEmpty');
+  const table = document.getElementById('noCartTable');
+  if (!noCart.length) {
+    empty.style.display = 'block'; table.style.display = 'none';
+    document.getElementById('noCartTotal').textContent = '₱0.00';
+    return;
+  }
+  empty.style.display = 'none'; table.style.display = 'table';
+
+  let total = 0;
+  document.getElementById('noCartBody').innerHTML = noCart.map(c => {
+    const subtotal = c.price * c.quantity;
+    total += subtotal;
+    return `<tr>
+      <td class="fs-sm">${c.emoji || '💧'} ${c.name}</td>
+      <td><div class="qty-ctrl"><button onclick="changeCartQty('${c.product_id}',-1)">−</button><span>${c.quantity}</span><button onclick="changeCartQty('${c.product_id}',1)">+</button></div></td>
+      <td class="fs-sm">₱${c.price.toLocaleString()}</td>
+      <td class="fw7 txt-navy">₱${subtotal.toLocaleString()}</td>
+      <td><button class="btn btn-sm" onclick="removeFromCart('${c.product_id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('noCartTotal').textContent = '₱' + total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ---- Customer search / select / quick-create ----
+function renderCustomerPicker() {
+  const q = (document.getElementById('noCustomerSearch')?.value || '').toLowerCase().trim();
+  const results = document.getElementById('noCustomerResults');
+  if (!q) { results.innerHTML = ''; return; }
+  const matches = allCustomers.filter(c =>
+    (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)
+  ).slice(0, 8);
+  results.innerHTML = matches.map(c => `
+    <div class="customer-row" style="cursor:pointer;padding:9px 12px" onclick='selectCustomer(${JSON.stringify(c)})'>
+      <div class="c-avatar" style="width:32px;height:32px;font-size:.85rem">${(c.name||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1"><div class="fw7 fs-sm txt-navy">${c.name||'—'}</div><div class="fs-xs muted">${c.phone||c.email||''}</div></div>
+    </div>`).join('') || '<p class="fs-xs muted" style="padding:8px">No matches. Try "+ New Customer" below.</p>';
+}
+
+function selectCustomer(c) {
+  noSelectedCustomer = c;
+  document.getElementById('noCustomerSearch').value = '';
+  document.getElementById('noCustomerResults').innerHTML = '';
+  document.getElementById('noCustomerSelected').style.display = 'none';
+  document.getElementById('noCustomerSelectedCard').style.display = 'block';
+  document.getElementById('noSelCustName').textContent = c.name || '—';
+  document.getElementById('noSelCustContact').textContent = [c.phone, c.email].filter(Boolean).join(' · ') || '—';
+  if (c.address && noOrderType === 'delivery') document.getElementById('noAddress').value = c.address;
+}
+
+function clearSelectedCustomer() {
+  noSelectedCustomer = null;
+  document.getElementById('noCustomerSelected').style.display = 'block';
+  document.getElementById('noCustomerSelectedCard').style.display = 'none';
+}
+
+function toggleNewCustomerForm(show) {
+  document.getElementById('noNewCustomerForm').style.display = show ? 'block' : 'none';
+}
+
+async function createAndSelectCustomer() {
+  const name = document.getElementById('ncName').value.trim();
+  const phone = document.getElementById('ncPhone').value.trim();
+  const email = document.getElementById('ncEmail').value.trim();
+  const address = document.getElementById('ncAddress').value.trim();
+  if (!name || !phone) return alert('Name and mobile number are required.');
+
+  const { data, error } = await db.rpc('cq_create_customer', {
+    p_email: email || null,
+    p_name: name, p_phone: phone, p_address: address || null
+  });
+  if (error) return alert('Error: ' + error.message);
+
+  allCustomers.push(data);
+  ['ncName','ncPhone','ncEmail','ncAddress'].forEach(id => document.getElementById(id).value = '');
+  toggleNewCustomerForm(false);
+  selectCustomer(data);
+}
+
+// ---- Order type + date label ----
+function setOrderType(type) {
+  noOrderType = type;
+  document.getElementById('noTypeDelivery').classList.toggle('no-type-btn', type !== 'delivery');
+  document.getElementById('noTypeDelivery').classList.toggle('active', type === 'delivery');
+  document.getElementById('noTypePickup').classList.toggle('no-type-btn', type !== 'pickup');
+  document.getElementById('noTypePickup').classList.toggle('active', type === 'pickup');
+  document.getElementById('noDeliveryFields').style.display = type === 'delivery' ? 'block' : 'none';
+  document.getElementById('noDateLabel').textContent = type === 'delivery' ? 'Delivery Date' : 'Pickup Date';
+}
+
+// ---- Submit ----
+async function submitNewOrder() {
+  const msg = document.getElementById('noOrderMsg');
+  msg.style.display = 'none';
+
+  if (!noSelectedCustomer) return showNoMsg('Please select or create a customer.');
+  if (!noCart.length) return showNoMsg('Add at least one product to the cart.');
+  const date = document.getElementById('noDate').value;
+  if (!date) return showNoMsg('Please pick a date.');
+
+  let address = null, barangay = null, windowStr = null;
+  if (noOrderType === 'delivery') {
+    address = document.getElementById('noAddress').value.trim();
+    barangay = document.getElementById('noBarangay').value || null;
+    windowStr = document.getElementById('noWindow').value;
+    if (!address) return showNoMsg('Delivery address is required for delivery orders.');
+  }
+
+  const payload = {
+    p_customer_id: noSelectedCustomer.id,
+    p_items: noCart.map(c => ({ product_id: c.product_id, quantity: c.quantity })),
+    p_order_type: noOrderType,
+    p_delivery_address: address,
+    p_delivery_date: date,
+    p_delivery_window: windowStr,
+    p_special_notes: document.getElementById('noNotes').value.trim() || null,
+    p_payment_method: document.getElementById('noPaymentMethod').value,
+    p_mark_paid: document.getElementById('noMarkPaid').checked,
+    p_barangay: barangay
+  };
+
+  const btn = document.querySelector('#sec-neworder button.btn-gold');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Placing order…';
+  const { data, error } = await db.rpc('cq_create_order', payload);
+  btn.disabled = false; btn.textContent = orig;
+
+  if (error) return showNoMsg(error.message);
+
+  // Reset for the next order.
+  noCart = []; renderCart();
+  clearSelectedCustomer();
+  document.getElementById('noNotes').value = '';
+  document.getElementById('noMarkPaid').checked = false;
+  if (noOrderType === 'delivery') document.getElementById('noAddress').value = '';
+
+  await loadOrders();
+  alert(`✅ Order placed! Total ₱${Number(data.order.total_amount).toLocaleString()}.`);
+}
+
+function showNoMsg(text) {
+  const msg = document.getElementById('noOrderMsg');
+  msg.textContent = text; msg.style.display = 'block';
 }
 </script>
 </body>
