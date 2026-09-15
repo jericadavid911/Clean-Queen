@@ -283,6 +283,10 @@ tbody tr:hover{background:var(--off-white);}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Customers
       </a>
+      <a onclick="showSection('inventory',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Inventory <span id="sbLowStockCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(220,38,38,.15);color:var(--bad);border:none;display:none"></span>
+      </a>
       <div class="sb-section">Manager</div>
       <a onclick="showSection('closing',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -519,6 +523,34 @@ tbody tr:hover{background:var(--off-white);}
         <div id="customersList" style="display:flex;flex-direction:column;gap:10px;display:none"></div>
       </div><!-- /customers -->
 
+      <!-- INVENTORY -->
+      <div class="section-view" id="sec-inventory">
+        <div class="grid g4 mt-0" style="margin-bottom:20px">
+          <div class="stat-card"><div class="stat-ic navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div><div class="stat-val" id="invTotalProducts">—</div><div class="stat-lbl">Tracked Products</div></div></div>
+          <div class="stat-card"><div class="stat-ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="stat-val" id="invLowStockCount">—</div><div class="stat-lbl">Low Stock</div></div></div>
+          <div class="stat-card"><div class="stat-ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12V8H6a2 2 0 010-4h12v4"/><path d="M4 6v12a2 2 0 002 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4z"/></svg></div><div><div class="stat-val" id="invTotalUnits">—</div><div class="stat-lbl">Total Units in Stock</div></div></div>
+          <div class="stat-card"><div class="stat-ic gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-val" id="invMovementsToday">—</div><div class="stat-lbl">Movements Today</div></div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px">Stock Levels</h3>
+          <div id="invLoading" class="empty-state"><div class="spinner-inline"></div> Loading inventory…</div>
+          <table id="invTable" style="display:none">
+            <thead><tr><th>Product</th><th>Type</th><th>Current Stock</th><th>Reorder At</th><th>Status</th><th></th></tr></thead>
+            <tbody id="invTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px">Recent Movements</h3>
+          <div id="invMovLoading" class="empty-state" style="padding:20px"><div class="spinner-inline"></div> Loading…</div>
+          <table id="invMovTable" style="display:none">
+            <thead><tr><th>When</th><th>Product</th><th>Type</th><th>Change</th><th>Resulting Stock</th><th>Reason</th><th>By</th></tr></thead>
+            <tbody id="invMovTableBody"></tbody>
+          </table>
+        </div>
+      </div><!-- /inventory -->
+
       <!-- DAILY CLOSING -->
       <div class="section-view" id="sec-closing">
         <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -649,6 +681,45 @@ tbody tr:hover{background:var(--off-white);}
   </div>
 </div>
 
+<!-- STOCK UPDATE MODAL -->
+<div class="modal" id="stockModal">
+  <div class="modal-card" style="max-width:400px">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;color:var(--navy)">📦 Update Stock</h3>
+      <div class="modal-close" onclick="closeStockModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p class="fs-sm muted" style="margin-bottom:4px">Product</p>
+      <p class="fw8 txt-navy" id="stockModalProduct" style="margin-bottom:14px">—</p>
+      <p class="fs-sm muted" style="margin-bottom:4px">Current Stock</p>
+      <p class="fw8" style="color:var(--navy);margin-bottom:14px" id="stockModalCurrent">0</p>
+
+      <div class="flex gap-2" style="margin-bottom:14px">
+        <button class="btn btn-sm" id="stockModeAdd" onclick="setStockMode('add')" style="flex:1">+ Add Stock</button>
+        <button class="btn btn-sm" id="stockModeCorrect" onclick="setStockMode('correct')" style="flex:1">✎ Correct Count</button>
+      </div>
+
+      <div id="stockAddFields">
+        <label class="fs-sm fw7 txt-navy">Quantity to Add</label>
+        <input class="input" type="number" min="1" id="stockAddQty" style="margin-top:6px;margin-bottom:12px" placeholder="e.g. new jugs filled, ice delivery"/>
+        <label class="fs-sm fw7 txt-navy">Reason (optional)</label>
+        <input class="input" type="text" id="stockAddReason" style="margin-top:6px;margin-bottom:6px" placeholder="e.g. Refilled 20 jugs"/>
+      </div>
+      <div id="stockCorrectFields" style="display:none">
+        <label class="fs-sm fw7 txt-navy">Actual Count (physical check)</label>
+        <input class="input" type="number" min="0" id="stockCorrectQty" style="margin-top:6px;margin-bottom:12px"/>
+        <label class="fs-sm fw7 txt-navy">Reason (required)</label>
+        <input class="input" type="text" id="stockCorrectReason" style="margin-top:6px;margin-bottom:6px" placeholder="e.g. Physical count found discrepancy"/>
+      </div>
+
+      <div id="stockModalMsg" class="msg error" style="display:none;margin-top:8px;margin-bottom:8px"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmStockUpdate()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const SUPABASE_URL = 'https://qtciwkgkuxqrxnqkfnvt.supabase.co';
@@ -698,6 +769,7 @@ async function initDashboard(staff) {
 
   await loadOrders();
   initNewOrder(); // New Order is the default landing tab
+  refreshLowStockBadge();
 
   // Poll for new/updated orders every 15s. (Realtime isn't available here: the
   // clean_queen schema isn't exposed, so all reads go through public RPCs.)
@@ -731,6 +803,7 @@ function showSection(id, linkEl) {
     neworder: ['New Order','Phone, walk-in, or messaged orders'],
     orders: ['Orders','Manage incoming orders'],
     customers: ['Customers','All registered customers'],
+    inventory: ['Inventory','Stock levels, restocks & adjustments'],
     closing: ['Daily Closing','Meter readings, sales & credit for the day'],
     reports: ['Shop Reports','Download sales, gallons & AR history']
   };
@@ -740,6 +813,7 @@ function showSection(id, linkEl) {
 
   if (id === 'neworder') initNewOrder();
   if (id === 'customers') loadCustomers();
+  if (id === 'inventory') loadInventory();
   if (id === 'closing') initClosingDay();
   if (id === 'reports') initReportsDates();
 }
@@ -1599,6 +1673,144 @@ async function submitNewOrder() {
 function showNoMsg(text) {
   const msg = document.getElementById('noOrderMsg');
   msg.textContent = text; msg.style.display = 'block';
+}
+
+// ==============================================================
+// INVENTORY — stock levels, restocks, corrections, movement log.
+// Sales deduct automatically via a DB trigger (order_items insert);
+// this screen is for viewing stock and manual restocks/corrections.
+// ==============================================================
+let invProducts = [];
+
+async function refreshLowStockBadge() {
+  const { data } = await db.rpc('cq_get_inventory');
+  const low = (data || []).filter(p => p.is_low_stock).length;
+  const badge = document.getElementById('sbLowStockCount');
+  if (low > 0) { badge.textContent = low; badge.style.display = 'inline-flex'; }
+  else badge.style.display = 'none';
+}
+
+async function loadInventory() {
+  document.getElementById('invLoading').style.display = 'block';
+  document.getElementById('invTable').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_inventory');
+  document.getElementById('invLoading').style.display = 'none';
+  if (error) { console.error(error); return; }
+
+  invProducts = data || [];
+  renderInventoryTable();
+  updateInventoryStats();
+  refreshLowStockBadge();
+  loadInventoryMovements();
+}
+
+function updateInventoryStats() {
+  document.getElementById('invTotalProducts').textContent = invProducts.length;
+  document.getElementById('invLowStockCount').textContent = invProducts.filter(p => p.is_low_stock).length;
+  document.getElementById('invTotalUnits').textContent = invProducts.reduce((s,p) => s + Number(p.current_stock), 0).toLocaleString();
+}
+
+function renderInventoryTable() {
+  document.getElementById('invTable').style.display = 'table';
+  document.getElementById('invTableBody').innerHTML = invProducts.map(p => `
+    <tr>
+      <td class="fw7 txt-navy">${p.emoji || '📦'} ${p.name}</td>
+      <td class="fs-xs muted">${p.type}</td>
+      <td class="fw8" style="color:${p.is_low_stock ? 'var(--bad)' : 'var(--navy)'}">${p.current_stock}</td>
+      <td class="fs-sm muted">${p.reorder_threshold}</td>
+      <td>${p.is_low_stock
+          ? '<span class="badge" style="background:var(--bad-bg);color:var(--bad)">⚠️ Low Stock</span>'
+          : '<span class="badge" style="background:var(--good-bg);color:var(--good)">✓ OK</span>'}</td>
+      <td><button class="btn btn-sm btn-navy" onclick='openStockModal(${JSON.stringify(p.id)}, ${JSON.stringify(p.name)}, ${p.current_stock})'>Update Stock</button></td>
+    </tr>`).join('');
+}
+
+async function loadInventoryMovements() {
+  document.getElementById('invMovLoading').style.display = 'block';
+  document.getElementById('invMovTable').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_inventory_movements', { p_limit: 50 });
+  document.getElementById('invMovLoading').style.display = 'none';
+  if (error) { console.error(error); return; }
+
+  const rows = data || [];
+  const today = todayStr();
+  document.getElementById('invMovementsToday').textContent = rows.filter(m => m.created_at.startsWith(today)).length;
+
+  if (!rows.length) {
+    document.getElementById('invMovTableBody').innerHTML = '<tr><td colspan="7" class="fs-sm muted" style="text-align:center;padding:20px">No stock movements yet.</td></tr>';
+    document.getElementById('invMovTable').style.display = 'table';
+    return;
+  }
+
+  const TYPE_LABEL = { sale: '🛒 Sale', restock: '📥 Restock', adjustment: '✎ Correction', cancelled_order: '↩️ Order Cancelled' };
+  document.getElementById('invMovTableBody').innerHTML = rows.map(m => `
+    <tr>
+      <td class="fs-xs muted">${new Date(m.created_at).toLocaleString('en-PH',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</td>
+      <td class="fs-sm fw7 txt-navy">${m.product_name}</td>
+      <td class="fs-xs muted">${TYPE_LABEL[m.movement_type] || m.movement_type}</td>
+      <td class="fw7" style="color:${m.quantity_change >= 0 ? 'var(--good)' : 'var(--bad)'}">${m.quantity_change >= 0 ? '+' : ''}${m.quantity_change}</td>
+      <td class="fs-sm">${m.resulting_stock}</td>
+      <td class="fs-xs muted">${m.reason || '—'}</td>
+      <td class="fs-xs muted">${m.performed_by_name || 'System'}</td>
+    </tr>`).join('');
+  document.getElementById('invMovTable').style.display = 'table';
+}
+
+// ---- Stock update modal ----
+let stockModalProductId = null;
+let stockModalMode = 'add';
+
+function openStockModal(productId, productName, currentStock) {
+  stockModalProductId = productId;
+  document.getElementById('stockModalProduct').textContent = productName;
+  document.getElementById('stockModalCurrent').textContent = currentStock;
+  document.getElementById('stockAddQty').value = '';
+  document.getElementById('stockAddReason').value = '';
+  document.getElementById('stockCorrectQty').value = currentStock;
+  document.getElementById('stockCorrectReason').value = '';
+  document.getElementById('stockModalMsg').style.display = 'none';
+  setStockMode('add');
+  document.getElementById('stockModal').classList.add('open');
+}
+function closeStockModal() {
+  document.getElementById('stockModal').classList.remove('open');
+  stockModalProductId = null;
+}
+document.getElementById('stockModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeStockModal(); });
+
+function setStockMode(mode) {
+  stockModalMode = mode;
+  document.getElementById('stockModeAdd').classList.toggle('no-type-btn', mode !== 'add');
+  document.getElementById('stockModeAdd').classList.toggle('active', mode === 'add');
+  document.getElementById('stockModeCorrect').classList.toggle('no-type-btn', mode !== 'correct');
+  document.getElementById('stockModeCorrect').classList.toggle('active', mode === 'correct');
+  document.getElementById('stockAddFields').style.display = mode === 'add' ? 'block' : 'none';
+  document.getElementById('stockCorrectFields').style.display = mode === 'correct' ? 'block' : 'none';
+}
+
+async function confirmStockUpdate() {
+  const msg = document.getElementById('stockModalMsg');
+  msg.style.display = 'none';
+
+  if (stockModalMode === 'add') {
+    const qty = parseInt(document.getElementById('stockAddQty').value);
+    if (isNaN(qty) || qty <= 0) { msg.textContent = 'Enter a quantity greater than zero.'; msg.style.display = 'block'; return; }
+    const reason = document.getElementById('stockAddReason').value.trim() || null;
+    const { error } = await db.rpc('cq_add_stock', { p_product_id: stockModalProductId, p_quantity: qty, p_reason: reason });
+    if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+  } else {
+    const qty = parseInt(document.getElementById('stockCorrectQty').value);
+    const reason = document.getElementById('stockCorrectReason').value.trim();
+    if (isNaN(qty) || qty < 0) { msg.textContent = 'Enter a valid count.'; msg.style.display = 'block'; return; }
+    if (!reason) { msg.textContent = 'A reason is required for a manual correction.'; msg.style.display = 'block'; return; }
+    const { error } = await db.rpc('cq_adjust_stock', { p_product_id: stockModalProductId, p_new_stock: qty, p_reason: reason });
+    if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+  }
+
+  closeStockModal();
+  await loadInventory();
 }
 </script>
 </body>
