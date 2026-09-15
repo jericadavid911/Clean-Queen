@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Clean Queen Water Refilling Station — A Higher Standard of Clean · Makati</title>
+<meta name="description" content="Premium purified, alkaline & mineral water plus purified ice — free same-day delivery across Makati, Manila & Pasay. FDA-approved system, 27-stage filtration, UV sterilization, reverse osmosis. Order by 6PM. Call 0921-660-6969."/>
+<meta name="theme-color" content="#0B2F68"/>
+<meta property="og:title" content="Clean Queen Water Refilling Station · Makati"/>
+<meta property="og:description" content="Clean Water, Better Life. Premium purified, alkaline & mineral water delivered to your door in Makati. Open daily 8AM–8PM."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://clean-queen-water.vercel.app/"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='23' fill='%230B2F68'/%3E%3Cpath d='M24 10c0 0-9 10.5-9 17a9 9 0 0018 0c0-6.5-9-17-9-17z' fill='%23C9972D'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ============ CLEAN QUEEN BRAND SYSTEM — Guidelines Vol. 01 ============ */
+:root{
+  --navy:#0B2F68;          /* Royal Navy — trust, structure, authority */
+  --navy-2:#123D85;
+  --navy-deep:#081F45;
+  --gold:#C9972D;          /* Premium Gold — premium quality & emphasis */
+  --gold-2:#A07820;
+  --gold-light:#F5E6C0;
+  --gold-pale:#FBF4E2;
+  --water:#6EBDEB;         /* Water Blue — freshness accents, use sparingly */
+  --water-light:#EAF6FD;
+  --white:#F7F7F5;         /* Clean White — cleanliness & clarity */
+  --card:#FFFFFF;
+  --gray:#C9CFD6;          /* Soft Gray — neutral support */
+  --text:#13233F;
+  --muted:#54657F;
+  --line:#E2E8F1;
+  --good:#16A34A;
+  --grad-navy:linear-gradient(150deg,#081F45 0%,#0B2F68 52%,#123D85 100%);
+  --grad-gold:linear-gradient(135deg,#F5E6C0 0%,#C9972D 55%,#A07820 100%);
+  --shadow-sm:0 2px 10px rgba(11,47,104,.08);
+  --shadow:0 10px 34px rgba(11,47,104,.14);
+  --shadow-lg:0 24px 60px rgba(11,47,104,.24);
+  --shadow-gold:0 12px 34px rgba(201,151,45,.35);
+  --radius:22px; --radius-sm:14px;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+::selection{background:var(--gold);color:var(--navy)}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{font-family:var(--font-body);color:var(--text);background:var(--white);-webkit-font-smoothing:antialiased;line-height:1.6;}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+h1,h2,h3{font-family:var(--font-display);line-height:1.14;color:var(--navy)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 28px;border-radius:999px;font-weight:700;font-size:.95rem;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn svg{width:17px;height:17px;flex-shrink:0}
+.btn-gold{background:var(--grad-gold);color:var(--navy);box-shadow:var(--shadow-gold)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(201,151,45,.45)}
+.btn-white{background:#fff;color:var(--navy);border:1.5px solid var(--line);box-shadow:var(--shadow-sm)}
+.btn-white:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.btn-ghost-light{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.35);backdrop-filter:blur(6px)}
+.btn-ghost-light:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
+.btn-navy{background:var(--grad-navy);color:#fff;box-shadow:var(--shadow)}
+.btn-navy:hover{transform:translateY(-2px)}
+
+/* ---------- Header ---------- */
+header{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .25s,box-shadow .25s;padding:14px 0}
+header.scrolled{background:rgba(8,31,69,.92);backdrop-filter:blur(14px);box-shadow:0 6px 30px rgba(8,31,69,.35);padding:10px 0}
+.nav-row{display:flex;align-items:center;gap:18px}
+.logo-lockup{display:flex;align-items:center;gap:12px;margin-right:auto}
+.logo-seal{width:50px;height:50px;flex-shrink:0}
+.logo-name{font-family:var(--font-display);font-weight:700;font-size:1.18rem;color:#fff;line-height:1.05}
+.logo-name small{display:block;font-family:var(--font-body);font-size:.6rem;font-weight:700;letter-spacing:.18em;white-space:nowrap;text-transform:uppercase;color:var(--gold-light);margin-top:3px}
+nav.desktop{display:flex;align-items:center;gap:4px}
+nav.desktop a{padding:9px 12px;border-radius:999px;font-weight:600;font-size:.85rem;white-space:nowrap;color:rgba(255,255,255,.85);transition:background .2s,color .2s}
+nav.desktop a:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.nav-cta .btn{padding:10px 20px;font-size:.85rem}
+.hamburger{display:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);place-items:center}
+.hamburger svg{width:22px;height:22px;stroke:#fff}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:var(--grad-navy);padding:110px 28px 40px;flex-direction:column;gap:6px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{padding:15px 18px;border-radius:14px;font-weight:700;font-size:1.05rem;color:#fff;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06)}
+.mobile-menu .btn{margin-top:10px}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;background:var(--grad-navy);color:#fff;padding:170px 0 0;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-140px;right:-140px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(201,151,45,.22),transparent 65%)}
+.hero::after{content:"";position:absolute;bottom:20%;left:-160px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(110,189,235,.16),transparent 65%)}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding-bottom:64px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;background:rgba(201,151,45,.16);border:1px solid rgba(201,151,45,.45);color:var(--gold-light);font-size:.72rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;padding:8px 16px;border-radius:999px;margin-bottom:22px}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.hero h1{font-size:clamp(2.6rem,5.4vw,4.3rem);color:#fff;font-weight:800;letter-spacing:.01em}
+.hero h1 .gold{color:var(--gold)}
+.hero .subhead{font-family:var(--font-display);font-style:italic;font-size:clamp(1.15rem,2.2vw,1.5rem);color:var(--gold-light);margin-top:14px;font-weight:600}
+.hero p.lead{color:rgba(226,236,255,.85);font-size:1.02rem;max-width:520px;margin-top:16px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.trust-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 15px;font-size:.78rem;font-weight:600;color:rgba(230,240,255,.92)}
+.chip svg{width:14px;height:14px;color:var(--gold);flex-shrink:0}
+
+/* Seal */
+.hero-visual{display:grid;place-items:center;position:relative}
+.seal{width:min(400px,78vw);filter:drop-shadow(0 30px 60px rgba(4,14,34,.55));animation:float 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@media(prefers-reduced-motion:reduce){.seal{animation:none}}
+
+/* Utility bar */
+.util-bar{position:relative;z-index:2;background:var(--navy-deep);border-top:1px solid rgba(201,151,45,.35)}
+.util-row{display:flex;align-items:center;justify-content:center;gap:34px;flex-wrap:wrap;padding:16px 24px}
+.util-item{display:flex;align-items:center;gap:9px;font-size:.82rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-light)}
+.util-item svg{width:16px;height:16px;color:var(--water)}
+.util-sep{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.7}
+
+/* ---------- Sections ---------- */
+section{padding:88px 0}
+.sec-head{text-align:center;max-width:640px;margin:0 auto 52px}
+.sec-eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--gold-2);font-size:.7rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px}
+.sec-eyebrow::before,.sec-eyebrow::after{content:"";width:26px;height:1.5px;background:var(--gold)}
+.sec-head h2{font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:800}
+.sec-head p{color:var(--muted);margin-top:12px;font-size:1rem}
+.drop-divider{display:flex;justify-content:center;margin:14px 0 0}
+.drop-divider svg{width:14px;height:18px;color:var(--gold)}
+
+/* ---------- Trust strip ---------- */
+.trust-strip{background:var(--card);border-bottom:1px solid var(--line)}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.trust-cell{display:flex;align-items:center;gap:14px;padding:26px 22px;border-right:1px solid var(--line)}
+.trust-cell:last-child{border-right:0}
+.trust-ic{width:52px;height:52px;border-radius:50%;background:var(--navy);border:2px solid var(--gold);display:grid;place-items:center;flex-shrink:0}
+.trust-ic svg{width:24px;height:24px;color:var(--gold-light)}
+.trust-cell b{display:block;font-size:.92rem;color:var(--navy);font-weight:800}
+.trust-cell span{font-size:.76rem;color:var(--muted)}
+
+/* ---------- Products ---------- */
+#products{background:var(--white)}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.prod-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:28px 26px 26px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .25s,box-shadow .28s;display:flex;flex-direction:column}
+.prod-card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad-gold);opacity:0;transition:opacity .25s}
+.prod-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.prod-card:hover::before{opacity:1}
+.prod-card.featured{background:var(--grad-navy);border:1px solid rgba(201,151,45,.5)}
+.prod-card.featured::before{opacity:1}
+.prod-card.featured .prod-name,.prod-card.featured .prod-price b{color:#fff}
+.prod-card.featured .prod-desc{color:rgba(226,236,255,.78)}
+.prod-card.featured .prod-unit{color:var(--gold-light)}
+.best-badge{position:absolute;top:18px;right:18px;background:var(--grad-gold);color:var(--navy);font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
+.prod-ic{width:60px;height:60px;border-radius:18px;display:grid;place-items:center;margin-bottom:18px;border:1.5px solid var(--line)}
+.prod-card.featured .prod-ic{background:rgba(255,255,255,.1);border-color:rgba(201,151,45,.45)}
+.prod-ic svg{width:30px;height:30px}
+.prod-name{font-family:var(--font-display);font-size:1.32rem;font-weight:700;color:var(--navy)}
+.prod-desc{font-size:.86rem;color:var(--muted);margin-top:8px;flex:1}
+.prod-price{display:flex;align-items:baseline;gap:7px;margin-top:18px}
+.prod-price b{font-family:var(--font-display);font-size:1.9rem;color:var(--navy);font-weight:800}
+.prod-unit{font-size:.8rem;color:var(--muted);font-weight:600}
+.prod-cta{margin-top:18px}
+.prod-cta .btn{width:100%;padding:12px}
+.prod-note{text-align:center;margin-top:34px;color:var(--muted);font-size:.88rem}
+.prod-note b{color:var(--navy)}
+
+/* ---------- Why (navy) ---------- */
+#why{background:var(--grad-navy);color:#fff;position:relative;overflow:hidden}
+#why::before{content:"";position:absolute;right:-120px;top:-120px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(201,151,45,.18),transparent 65%)}
+#why .sec-head h2{color:#fff}
+#why .sec-head p{color:rgba(226,236,255,.75)}
+#why .sec-eyebrow{color:var(--gold-light)}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative;z-index:1}
+.why-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius-sm);padding:26px 24px;transition:background .25s,border-color .25s,transform .25s}
+.why-card:hover{background:rgba(255,255,255,.1);border-color:rgba(201,151,45,.5);transform:translateY(-4px)}
+.why-ic{width:50px;height:50px;border-radius:50%;background:rgba(201,151,45,.16);border:1.5px solid var(--gold);display:grid;place-items:center;margin-bottom:16px}
+.why-ic svg{width:23px;height:23px;color:var(--gold-light)}
+.why-card b{display:block;font-family:var(--font-display);font-size:1.08rem;font-weight:700;color:#fff;margin-bottom:7px}
+.why-card p{font-size:.85rem;color:rgba(226,236,255,.75)}
+.serve-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:44px;position:relative;z-index:1}
+.serve-pill{display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:10px 19px;font-size:.83rem;font-weight:700;color:#fff}
+.serve-pill svg{width:16px;height:16px;color:var(--gold)}
+
+/* ---------- How it works ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 24px;position:relative;box-shadow:var(--shadow-sm)}
+.step-num{width:46px;height:46px;border-radius:50%;background:var(--grad-gold);color:var(--navy);font-family:var(--font-display);font-weight:800;font-size:1.25rem;display:grid;place-items:center;margin-bottom:16px;box-shadow:var(--shadow-gold)}
+.step b{display:block;font-family:var(--font-display);font-size:1.1rem;color:var(--navy);margin-bottom:7px}
+.step p{font-size:.85rem;color:var(--muted)}
+.step .arrow{position:absolute;top:44px;right:-16px;width:26px;height:26px;color:var(--gold);z-index:2;display:grid;place-items:center}
+.step:last-child .arrow{display:none}
+.how-cta{text-align:center;margin-top:40px}
+
+/* ---------- Account callout ---------- */
+.account-band{background:var(--gold-pale);border-block:1px solid #EDDDB4;padding:56px 0}
+.account-inner{display:flex;align-items:center;gap:36px;justify-content:space-between;flex-wrap:wrap}
+.account-inner .ic{width:64px;height:64px;border-radius:50%;background:var(--navy);border:2px solid var(--gold);display:grid;place-items:center;flex-shrink:0}
+.account-inner .ic svg{width:30px;height:30px;color:var(--gold-light)}
+.account-copy{flex:1;min-width:260px}
+.account-copy h3{font-size:1.5rem;font-weight:800}
+.account-copy p{color:var(--muted);margin-top:6px;font-size:.94rem}
+
+/* ---------- Coverage ---------- */
+#coverage{background:var(--card)}
+.zone-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:22px;align-items:stretch}
+.zone-card{border-radius:var(--radius);padding:28px 26px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow-sm)}
+.zone-card.tier1{background:var(--grad-navy);border-color:rgba(201,151,45,.5);color:#fff}
+.zone-tag{display:inline-flex;align-items:center;gap:7px;font-size:.66rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:14px}
+.zone-card.tier1 .zone-tag{background:var(--grad-gold);color:var(--navy)}
+.zone-card.tier2 .zone-tag{background:var(--gold-pale);color:var(--gold-2);border:1px solid var(--gold-light)}
+.zone-card h3{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.zone-card.tier1 h3{color:#fff}
+.zone-card p.zone-sub{font-size:.88rem;color:var(--muted)}
+.zone-card.tier1 p.zone-sub{color:rgba(226,236,255,.82)}
+.zone-rule{display:flex;align-items:center;gap:10px;margin-top:16px;padding:13px 16px;border-radius:var(--radius-sm);font-size:.86rem;font-weight:700}
+.zone-card.tier1 .zone-rule{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--gold-light)}
+.zone-card.tier2 .zone-rule{background:var(--gold-pale);border:1px solid var(--gold-light);color:var(--navy)}
+.zone-rule svg{width:18px;height:18px;flex-shrink:0}
+.brgy-group{margin-top:18px}
+.brgy-group h4{font-family:var(--font-body);font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-2);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.brgy-group h4::after{content:"";flex:1;height:1px;background:var(--line)}
+.brgy-chips{display:flex;flex-wrap:wrap;gap:6px}
+.brgy{font-size:.78rem;font-weight:600;color:var(--navy);background:var(--water-light);border:1px solid #CFE8F8;border-radius:999px;padding:5px 12px}
+.zone-note{margin-top:22px;text-align:center;font-size:.86rem;color:var(--muted)}
+.zone-note b{color:var(--navy)}
+@media(max-width:1020px){.zone-grid{grid-template-columns:1fr}}
+
+/* ---------- About ---------- */
+#about{background:var(--card)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.about-copy .sec-eyebrow::before{display:none}
+.about-copy h2{font-size:clamp(1.8rem,3.2vw,2.4rem);font-weight:800}
+.about-copy p{color:var(--muted);margin-top:16px;font-size:.97rem}
+.values{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.value-chip{display:inline-flex;align-items:center;gap:8px;background:var(--water-light);border:1px solid #CFE8F8;color:var(--navy);font-size:.8rem;font-weight:700;padding:9px 16px;border-radius:999px}
+.value-chip svg{width:14px;height:14px;color:var(--gold-2)}
+.about-visual{position:relative;display:grid;place-items:center;background:var(--grad-navy);border-radius:var(--radius);padding:56px 40px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.about-visual::before{content:"";position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(201,151,45,.25),transparent 65%)}
+.about-visual .seal{width:min(300px,64vw);animation:none}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px;width:100%;position:relative;z-index:1}
+.a-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:var(--radius-sm);padding:14px 10px;text-align:center}
+.a-stat b{display:block;font-family:var(--font-display);font-size:1.45rem;color:var(--gold);font-weight:800}
+.a-stat span{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(226,236,255,.8)}
+
+/* ---------- FAQ ---------- */
+#faq{background:var(--white)}
+.faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.faq-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;transition:box-shadow .25s,border-color .25s}
+.faq-item[open]{box-shadow:var(--shadow);border-color:var(--gold)}
+.faq-item summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;font-weight:700;font-size:.98rem;color:var(--navy);cursor:pointer}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary .plus{width:30px;height:30px;border-radius:50%;background:var(--gold-pale);border:1px solid var(--gold-light);display:grid;place-items:center;flex-shrink:0;transition:transform .25s;color:var(--gold-2);font-weight:700}
+.faq-item[open] summary .plus{transform:rotate(45deg);background:var(--grad-gold);color:var(--navy)}
+.faq-item .faq-body{padding:0 24px 22px;color:var(--muted);font-size:.9rem}
+
+/* ---------- Footer ---------- */
+footer{background:var(--navy-deep);color:rgba(226,236,255,.85);position:relative;overflow:hidden}
+footer::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--grad-gold)}
+.foot-main{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:44px;padding:70px 0 46px}
+.foot-brand .logo-lockup{margin-bottom:18px}
+.foot-brand p{font-size:.88rem;color:rgba(226,236,255,.7);max-width:320px}
+.foot-tagline{font-family:var(--font-display);font-style:italic;color:var(--gold-light);margin-top:14px;font-size:1.02rem}
+.foot-col h4{font-size:.72rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+.foot-col a,.foot-col .foot-line{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:.9rem;color:rgba(226,236,255,.82)}
+.foot-col a:hover{color:#fff}
+.foot-col svg{width:16px;height:16px;color:var(--gold);flex-shrink:0;margin-top:4px}
+.foot-hotline{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--gold-light)}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.12);padding:20px 0;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.78rem;color:rgba(226,236,255,.55)}
+.foot-badges{display:flex;gap:8px;flex-wrap:wrap}
+.foot-badges span{border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(226,236,255,.7)}
+
+/* ---------- Reveal ---------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1020px){
+  nav.desktop{display:none}
+  .hamburger{display:grid}
+  .hero-grid{grid-template-columns:1fr;text-align:center;gap:36px}
+  .hero p.lead{margin-inline:auto}
+  .hero-ctas,.trust-chips{justify-content:center}
+  .trust-grid{grid-template-columns:repeat(2,1fr)}
+  .trust-cell:nth-child(2n){border-right:0}
+  .trust-cell:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .prod-grid{grid-template-columns:repeat(2,1fr)}
+  .why-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .step .arrow{display:none}
+  .about-grid{grid-template-columns:1fr}
+  .foot-main{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  section{padding:64px 0}
+  .nav-cta .btn-white{display:none}
+  .trust-grid{grid-template-columns:1fr}
+  .trust-cell{border-right:0;border-bottom:1px solid var(--line)}
+  .trust-cell:last-child{border-bottom:0}
+  .prod-grid,.why-grid,.steps{grid-template-columns:1fr}
+  .foot-main{grid-template-columns:1fr;gap:34px}
+  .util-row{gap:16px}
+  .hero{padding-top:140px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header id="header">
+  <div class="wrap nav-row">
+    <a class="logo-lockup" href="#top" aria-label="Clean Queen home">
+      <img class="logo-seal" src="logo.jpg" alt="" style="border-radius:50%;object-fit:contain;background:#fff;"/>
+      <span class="logo-name">Clean Queen<small>Water Refilling Station</small></span>
+    </a>
+    <nav class="desktop" aria-label="Main">
+      <a href="#products">Products</a>
+      <a href="#coverage">Coverage</a>
+      <a href="#why">Why Us</a>
+      <a href="#how">How It Works</a>
+      <a href="#about">About</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-white" href="login.html">My Orders</a>
+      <a class="btn btn-gold" href="login.html">Order Now</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#products">Products</a>
+  <a href="#coverage">Coverage</a>
+  <a href="#why">Why Us</a>
+  <a href="#how">How It Works</a>
+  <a href="#about">About</a>
+  <a href="#faq">FAQ</a>
+  <a href="#contact">Contact</a>
+  <a class="btn btn-gold" href="login.html">Order Now →</a>
+  <a class="btn btn-ghost-light" href="login.html">My Orders</a>
+</div>
+
+<!-- ================= HERO ================= -->
+<div class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>Premium Water · Makati City<span class="dot"></span></span>
+      <h1>Clean Water,<br/><span class="gold">Better Life.</span></h1>
+      <div class="subhead">A Higher Standard of Clean</div>
+      <p class="lead">Premium purified, alkaline &amp; mineral water — plus purified ice — refilled at our Makati station and delivered fresh to your door.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-gold" href="login.html">
+          Order Now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost-light" href="tel:+639216606969">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>
+          0921-660-6969
+        </a>
+      </div>
+      <div class="trust-chips">
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>27-Stage Filtration</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>UV Sterilization</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Reverse Osmosis</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>FDA-Approved System</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Same-Day Delivery · Order by 6PM</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <img class="seal" src="logo.jpg" alt="Clean Queen premium water seal" style="border-radius:50%;object-fit:contain;background:#fff;"/>
+    </div>
+  </div>
+
+  <!-- Utility product bar -->
+  <div class="util-bar">
+    <div class="wrap util-row">
+      <span class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3s-6 7-6 11a6 6 0 0012 0c0-4-6-11-6-11z"/></svg>Alkaline</span>
+      <span class="util-sep"></span>
+      <span class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3s-6 7-6 11a6 6 0 0012 0c0-4-6-11-6-11z"/></svg>Mineral</span>
+      <span class="util-sep"></span>
+      <span class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3s-6 7-6 11a6 6 0 0012 0c0-4-6-11-6-11z"/></svg>Purified</span>
+      <span class="util-sep"></span>
+      <span class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 6l16 12M20 6L4 18"/></svg>Ice</span>
+      <span class="util-sep"></span>
+      <span class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="5" width="14" height="12" rx="2"/><path d="M15 9h4l3 3v5h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>5-Gallon Delivery</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= TRUST STRIP ================= -->
+<div class="trust-strip">
+  <div class="wrap trust-grid">
+    <div class="trust-cell reveal">
+      <div class="trust-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <div><b>27-Stage Filtration</b><span>Multi-stage purification process</span></div>
+    </div>
+    <div class="trust-cell reveal">
+      <div class="trust-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div>
+      <div><b>UV Sterilization</b><span>Certified germ-free protection</span></div>
+    </div>
+    <div class="trust-cell reveal">
+      <div class="trust-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3s-6 7-6 11a6 6 0 0012 0c0-4-6-11-6-11z"/><path d="M9.5 14a2.5 2.5 0 002.5 2.5"/></svg></div>
+      <div><b>Reverse Osmosis</b><span>100% purified water</span></div>
+    </div>
+    <div class="trust-cell reveal">
+      <div class="trust-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="5" width="14" height="12" rx="2"/><path d="M15 9h4l3 3v5h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></div>
+      <div><b>Fast Local Delivery</b><span>San Antonio Village &amp; nearby</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PRODUCTS ================= -->
+<section id="products">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">Our Products</span>
+      <h2>Fresh From Our Station, Daily</h2>
+      <div class="drop-divider"><svg viewBox="0 0 14 18" fill="currentColor"><path d="M7 0S0 8.4 0 12a7 7 0 0014 0C14 8.4 7 0 7 0z"/></svg></div>
+      <p>Every gallon is purified, quality-checked, and sealed at 8378 Mayapis St. — then delivered cold and clean.</p>
+    </div>
+
+    <div class="prod-grid">
+      <div class="prod-card featured reveal">
+        <span class="best-badge">Best Seller</span>
+        <div class="prod-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#F5E6C0" stroke-width="1.8" stroke-linecap="round"><path d="M8 3L4 15l8 6 8-6-4-12z"/><path d="M4 15l8-4 8 4M12 11V3"/></svg></div>
+        <div class="prod-name">Mineral Water</div>
+        <p class="prod-desc">Natural minerals for a fuller taste the whole family enjoys, glass after glass. Our most-ordered water.</p>
+        <div class="prod-price"><b>₱45</b><span class="prod-unit">/ 5-gallon</span></div>
+        <div class="prod-cta"><a class="btn btn-gold" href="login.html">Order Mineral →</a></div>
+      </div>
+
+      <div class="prod-card reveal">
+        <div class="prod-ic" style="background:var(--water-light)"><svg viewBox="0 0 24 24" fill="none" stroke="#2E7FC2" stroke-width="1.8" stroke-linecap="round"><path d="M12 3s-6 7-6 11a6 6 0 0012 0c0-4-6-11-6-11z"/><path d="M9.5 14a2.5 2.5 0 002.5 2.5"/></svg></div>
+        <div class="prod-name">Purified Water</div>
+        <p class="prod-desc">27-stage filtration via reverse osmosis. Crisp, safe everyday water for the whole household.</p>
+        <div class="prod-price"><b>₱50</b><span class="prod-unit">/ 5-gallon</span></div>
+        <div class="prod-cta"><a class="btn btn-navy" href="login.html">Order Purified →</a></div>
+      </div>
+
+      <div class="prod-card reveal">
+        <div class="prod-ic" style="background:#E9F8EF"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round"><path d="M11 20A7 7 0 014 13c0-4 3-8 8-10 0 0 8 3 8 10a7 7 0 01-7 7z"/><path d="M12 21c0-6-1-9-5-13"/></svg></div>
+        <div class="prod-name">Alkaline Water</div>
+        <p class="prod-desc">pH 8–9 for smoother, wellness-focused hydration. A favorite of health-conscious homes.</p>
+        <div class="prod-price"><b>₱55</b><span class="prod-unit">/ 5-gallon</span></div>
+        <div class="prod-cta"><a class="btn btn-navy" href="login.html">Order Alkaline →</a></div>
+      </div>
+
+      <div class="prod-card reveal">
+        <div class="prod-ic" style="background:var(--water-light)"><svg viewBox="0 0 24 24" fill="none" stroke="#2E7FC2" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M4 6l16 12M20 6L4 18"/></svg></div>
+        <div class="prod-name">Purified Ice</div>
+        <p class="prod-desc">Clean, purified ice in sealed bags — made from the same 27-stage purified water. Bigger packs on request.</p>
+        <div class="prod-price"><b>₱50</b><span class="prod-unit">/ 5 kg bag · ₱10 per kilo</span></div>
+        <div class="prod-cta"><a class="btn btn-navy" href="login.html">Order Ice →</a></div>
+      </div>
+
+      <div class="prod-card reveal" style="position:relative">
+        <span class="best-badge" style="background:var(--navy);color:var(--gold-light)">Bulk Only</span>
+        <div class="prod-ic" style="background:#F0F4FB"><svg viewBox="0 0 24 24" fill="none" stroke="#0B2F68" stroke-width="1.8" stroke-linecap="round"><path d="M10 2h4M9 6h6l1 3c.4 1.2.4 2 0 3l-.5 1.5c-.3 1-.5 2-.5 3V20a2 2 0 01-2 2h-2a2 2 0 01-2-2v-3.5c0-1-.2-2-.5-3L8 12c-.4-1-.4-1.8 0-3z"/></svg></div>
+        <div class="prod-name">PET Bottle 500ml</div>
+        <p class="prod-desc">Sealed 500ml purified drinking water — perfect for offices, events, and on-the-go.<br/><b style="color:var(--navy)">Available for bulk orders only — minimum 10 bottles.</b></p>
+        <div class="prod-price"><b>₱15</b><span class="prod-unit">/ bottle · min. 10</span></div>
+        <div class="prod-cta"><a class="btn btn-navy" href="login.html">Order Bottles →</a></div>
+      </div>
+
+      <div class="prod-card reveal" style="background:var(--gold-pale);border-color:var(--gold-light)">
+        <div class="prod-ic" style="background:#fff;border-color:var(--gold-light)"><svg viewBox="0 0 24 24" fill="none" stroke="#C9972D" stroke-width="1.8" stroke-linecap="round"><path d="M9 2h6l-1 3H10zM8 5h8l1.5 4.5c.4 1.2.5 2.3.5 3.5v5a4 4 0 01-4 4h-4a4 4 0 01-4-4v-5c0-1.2.1-2.3.5-3.5z"/></svg></div>
+        <div class="prod-name">New 5-Gallon Container</div>
+        <p class="prod-desc">Don't have a container yet? Buy one from us and keep it — yours to refill for life. Round or slim, your choice.</p>
+        <div class="prod-price"><b>₱200</b><span class="prod-unit">/ container · one-time</span></div>
+        <div class="prod-cta"><a class="btn btn-gold" href="login.html">Add a Container →</a></div>
+      </div>
+    </div>
+
+    <p class="prod-note">💧 Every water type comes in <b>round or slim</b> containers at the same price · Bring your own container or buy one from us · <b>Free delivery</b> — see coverage below</p>
+  </div>
+</section>
+
+<!-- ================= COVERAGE ================= -->
+<section id="coverage">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">Delivery Coverage</span>
+      <h2>Do We Deliver to You?</h2>
+      <div class="drop-divider"><svg viewBox="0 0 14 18" fill="currentColor"><path d="M7 0S0 8.4 0 12a7 7 0 0014 0C14 8.4 7 0 7 0z"/></svg></div>
+      <p>Find your barangay below. Delivery is free everywhere we serve — the only difference is the minimum order.</p>
+    </div>
+
+    <div class="zone-grid">
+      <div class="zone-card tier1 reveal">
+        <span class="zone-tag">Our Home Turf</span>
+        <h3>San Antonio Village</h3>
+        <p class="zone-sub">Where our station is. We're just around the corner, so order as little or as much as you like.</p>
+        <div class="zone-rule">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+          No minimum order · Free delivery
+        </div>
+        <div class="zone-rule" style="margin-top:10px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          Walk-ins welcome at 8378 Mayapis St.
+        </div>
+      </div>
+
+      <div class="zone-card tier2 reveal">
+        <span class="zone-tag">Bulk Delivery Areas</span>
+        <h3>Makati · Manila · Pasay</h3>
+        <p class="zone-sub">We deliver across these areas with a small minimum, so our two vehicles can serve everyone reliably.</p>
+        <div class="zone-rule">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3s-6 7-6 11a6 6 0 0012 0c0-4-6-11-6-11z"/></svg>
+          Minimum 10 × 5-gallon bottles · Free delivery
+        </div>
+
+        <div class="brgy-group">
+          <h4>Makati City</h4>
+          <div class="brgy-chips">
+            <span class="brgy">Salcedo Village</span><span class="brgy">Legaspi Village</span><span class="brgy">Bel-Air</span>
+            <span class="brgy">Ayala CBD</span><span class="brgy">San Lorenzo</span><span class="brgy">Urdaneta</span>
+            <span class="brgy">Dasmariñas</span><span class="brgy">Forbes Park</span><span class="brgy">Magallanes</span>
+            <span class="brgy">Poblacion</span><span class="brgy">Olympia</span><span class="brgy">La Paz</span>
+            <span class="brgy">Valenzuela</span><span class="brgy">Singkamas</span><span class="brgy">Carmona</span>
+            <span class="brgy">Tejeros</span><span class="brgy">San Isidro</span><span class="brgy">Pio del Pilar</span>
+            <span class="brgy">Kasilawan</span><span class="brgy">Sta. Cruz</span><span class="brgy">Palanan</span>
+            <span class="brgy">Bangkal</span><span class="brgy">Guadalupe Viejo</span><span class="brgy">Guadalupe Nuevo</span>
+            <span class="brgy">Pinagkaisahan</span>
+          </div>
+        </div>
+
+        <div class="brgy-group">
+          <h4>Manila</h4>
+          <div class="brgy-chips">
+            <span class="brgy">Malate</span><span class="brgy">Ermita</span><span class="brgy">Paco</span>
+            <span class="brgy">Sta. Ana</span><span class="brgy">San Andres Bukid</span><span class="brgy">Pandacan</span>
+            <span class="brgy">Intramuros</span><span class="brgy">City Hall area</span>
+          </div>
+        </div>
+
+        <div class="brgy-group">
+          <h4>Pasay</h4>
+          <div class="brgy-chips">
+            <span class="brgy">PICC / CCP Complex</span><span class="brgy">Pasay Rotonda</span><span class="brgy">MOA area</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="zone-note reveal">
+      The 10-bottle minimum counts <b>5-gallon refills only</b>. PET bottles are available by bulk (minimum 10) alongside your order.<br/>
+      Don't see your barangay, or need a big one-time delivery? Message us — we can fit up to <b>60 gallons in a single trip</b>.
+    </p>
+
+    <div class="how-cta reveal" style="margin-top:26px">
+      <a class="btn btn-gold" href="tel:+639216606969">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>
+        Ask About Office &amp; Bulk Accounts
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY ================= -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">Why Clean Queen</span>
+      <h2>A Higher Standard of Clean</h2>
+      <p>Our brand promise — delivered with consistency, care, and dependable service.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <b>Premium Quality Water</b>
+        <p>Every batch passes our 27-stage filtration process before a single gallon is filled.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div>
+        <b>UV Sterilization</b>
+        <p>Advanced UV treatment eliminates bacteria and viruses for certified germ-free water.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1M9 14h1M14 10h1M14 14h1"/></svg></div>
+        <b>Sanitary Station</b>
+        <p>A clean, organized refilling environment you can walk in and inspect anytime.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="5" width="14" height="12" rx="2"/><path d="M15 9h4l3 3v5h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg></div>
+        <b>Fast &amp; Reliable Delivery</b>
+        <p>Same-day delivery around San Antonio Village — track every order in your dashboard.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <b>Friendly Local Service</b>
+        <p>A neighborhood family business — we know our suki by name and treat you like royalty.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.3 9 8.5"/></svg></div>
+        <b>FDA-Approved Equipment</b>
+        <p>Our purification system is FDA-approved — the same standard you'd expect from a national brand.</p>
+      </div>
+    </div>
+
+    <div class="serve-row reveal">
+      <span class="serve-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Homes &amp; Families</span>
+      <span class="serve-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M9 6h1M9 10h1M9 14h1M14 6h1M14 10h1M14 14h1"/></svg>Offices &amp; Corporations</span>
+      <span class="serve-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 20h20M4 20V8l8-6 8 6v12"/></svg>Construction Sites</span>
+      <span class="serve-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="10"/></svg>Hospitals &amp; Clinics</span>
+      <span class="serve-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg>Schools &amp; Institutions</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">How It Works</span>
+      <h2>From Our Station to Your Door</h2>
+      <div class="drop-divider"><svg viewBox="0 0 14 18" fill="currentColor"><path d="M7 0S0 8.4 0 12a7 7 0 0014 0C14 8.4 7 0 7 0z"/></svg></div>
+      <p>Ordering takes less than a minute — no password, no app to install.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <b>Place Your Order</b>
+        <p>Order online with just your email — or call / text 0921-660-6969.</p>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <b>We Purify &amp; Pack</b>
+        <p>Your water passes 27 filtration stages, then is sealed and quality-checked.</p>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <b>Fast Delivery</b>
+        <p>Our rider brings it to your door — track the status live in your dashboard.</p>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <b>Enjoy &amp; Reorder</b>
+        <p>Drink up. Next time, your details are already saved — reordering takes one tap.</p>
+      </div>
+    </div>
+    <div class="how-cta reveal">
+      <a class="btn btn-gold" href="login.html">Start Your First Order
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ACCOUNT CALLOUT ================= -->
+<div class="account-band">
+  <div class="wrap account-inner reveal">
+    <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></div>
+    <div class="account-copy">
+      <h3>Already a suki? Just type your email.</h3>
+      <p>No passwords, no OTP codes. Enter your email and instantly see your orders, deliveries, and suki points.</p>
+    </div>
+    <a class="btn btn-navy" href="login.html">View My Orders →</a>
+  </div>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="wrap about-grid">
+    <div class="about-copy reveal">
+      <span class="sec-eyebrow">Our Story</span>
+      <h2>Your Trusted Neighborhood Water Provider</h2>
+      <p>Clean Queen exists to provide clean, safe, and dependable water for homes, families, businesses, and institutions in Makati. We were built as a friendly neighborhood water brand with premium standards — combining sanitation, reliability, and accessible delivery service.</p>
+      <p>Our mission is simple: deliver premium quality water and ice with reliable service, exceptional hygiene, and care for everyday life.</p>
+      <div class="values">
+        <span class="value-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Clean water improves daily life</span>
+        <span class="value-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Trust is earned daily</span>
+        <span class="value-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Quality is our standard</span>
+        <span class="value-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Service should be dependable</span>
+        <span class="value-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Community comes first</span>
+      </div>
+    </div>
+    <div class="about-visual reveal">
+      <img class="seal" src="logo.jpg" alt="Clean Queen premium water seal" style="border-radius:50%;object-fit:contain;background:#fff;"/>
+      <div class="about-stats">
+        <div class="a-stat"><b>27</b><span>Filtration Stages</span></div>
+        <div class="a-stat"><b>100%</b><span>Purified Water</span></div>
+        <div class="a-stat"><b>12h</b><span>Open Daily</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">FAQ</span>
+      <h2>Questions? We Have Answers.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <details class="faq-item">
+        <summary>Where do you deliver?<span class="plus">＋</span></summary>
+        <div class="faq-body">Across <b>Makati, Manila, and Pasay</b> — see the full barangay list in <a href="#coverage" style="color:var(--gold-2);font-weight:700">Delivery Coverage</a> above. Delivery is always free. Don't see your barangay? Call or text <b>0921-660-6969</b> and we'll check for you.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Is there a minimum order?<span class="plus">＋</span></summary>
+        <div class="faq-body">Inside <b>San Antonio Village</b> there's no minimum — order a single gallon if that's all you need. Everywhere else, the minimum is <b>10 × 5-gallon bottles</b>, which is why we're a favourite of offices and small businesses. The minimum counts 5-gallon refills only; PET bottles can ride along with your order.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How fast is delivery? Is there a cut-off?<span class="plus">＋</span></summary>
+        <div class="faq-body"><b>Same-day delivery</b> for orders placed before <b>6:00 PM</b>. Orders after the cut-off go out the next day. We can carry up to 60 gallons per trip, so large office orders are no problem.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need my own container? What does one cost?<span class="plus">＋</span></summary>
+        <div class="faq-body">Either way works. Bring your own and we'll swap it on delivery, or buy a new 5-gallon container from us for <b>₱200</b> — it's yours to keep and refill for life. We stock both <b>round and slim</b> containers, and every container is sanitized before refilling.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Round or slim — does it change the price?<span class="plus">＋</span></summary>
+        <div class="faq-body">No. <b>Same price either way</b>, and all three water types — purified, alkaline, and mineral — are available in both container shapes. Pick whichever fits your dispenser.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How do I pay?<span class="plus">＋</span></summary>
+        <div class="faq-body">Cash or <b>GCash</b> on delivery — whichever is easier. Our GCash number is <b>0921-660-6969</b>. For office and bulk accounts, ask us about regular billing.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Is your water actually tested and safe?<span class="plus">＋</span></summary>
+        <div class="faq-body">Yes. Our purification system is <b>FDA-approved</b> and every batch goes through <b>27 stages of filtration</b>, including <b>reverse osmosis</b> and <b>UV sterilization</b>. You're welcome to visit the station and see the setup for yourself.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How do I order online?<span class="plus">＋</span></summary>
+        <div class="faq-body">Tap <b>Order Now</b>, enter your email — no password or code needed — pick your water, choose a delivery date, done. First-time customers just add their name and address once.</div>
+      </details>
+      <details class="faq-item">
+        <summary>What are your store hours?<span class="plus">＋</span></summary>
+        <div class="faq-body">We're open daily from <b>8:00 AM to 8:00 PM</b>, including weekends. Walk-ins are always welcome at 8378 Mayapis St., San Antonio Village.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER / CONTACT ================= -->
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-main">
+      <div class="foot-brand">
+        <a class="logo-lockup" href="#top">
+          <img class="logo-seal" src="logo.jpg" alt="" style="border-radius:50%;object-fit:contain;background:#fff;"/>
+          <span class="logo-name">Clean Queen<small>Water Refilling Station</small></span>
+        </a>
+        <p>Premium purified, alkaline &amp; mineral water and purified ice — refilled with care in Makati and delivered to your door.</p>
+        <div class="foot-tagline">"A Higher Standard of Clean"</div>
+      </div>
+
+      <div class="foot-col">
+        <h4>Visit or Call</h4>
+        <div class="foot-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>8378 Mayapis St., San Antonio Village,<br/>Makati City</span>
+        </div>
+        <a href="tel:+639216606969">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>
+          <span class="foot-hotline">0921-660-6969</span>
+        </a>
+        <a href="tel:+63288960701">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>
+          <span>8896-0701 (landline)</span>
+        </a>
+        <div class="foot-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span>Open Daily · 8:00 AM – 8:00 PM</span>
+        </div>
+        <a href="https://web.facebook.com/cleanqueenwater" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0022 12z"/></svg>
+          <span>facebook.com/cleanqueenwater</span>
+        </a>
+        <div class="foot-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <span>Cash or GCash on delivery<br/>GCash: 0921-660-6969</span>
+        </div>
+      </div>
+
+      <div class="foot-col">
+        <h4>Quick Links</h4>
+        <a href="#products">Products &amp; Prices</a>
+        <a href="#coverage">Delivery Coverage</a>
+        <a href="#why">Why Clean Queen</a>
+        <a href="#how">How It Works</a>
+        <a href="#faq">FAQ</a>
+        <a href="login.html">Order Online</a>
+        <a href="login.html">My Orders</a>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <span>© <span id="year">2026</span> Clean Queen Water Refilling Station · Makati City</span>
+      <div class="foot-badges">
+        <span>Alkaline</span><span>Mineral</span><span>Purified</span><span>Ice</span><span>PET Bottles</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Header scroll state
+const header = document.getElementById('header');
+const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 40);
+onScroll();
+window.addEventListener('scroll', onScroll, { passive: true });
+
+// Mobile menu
+const burger = document.getElementById('hamburger');
+const menu   = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => {
+  const open = menu.classList.toggle('open');
+  burger.setAttribute('aria-expanded', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  menu.classList.remove('open');
+  document.body.style.overflow = '';
+}));
+
+// Reveal on scroll
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: .12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Year
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

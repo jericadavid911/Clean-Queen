@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Operator Dashboard — Clean Queen</title>
+<meta name="theme-color" content="#0B2F68"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:#0B2F68; --navy-2:#123D85; --gold:#C9972D; --gold-2:#A07820;
+  --gold-light:#F5E6C0; --white:#fff; --off-white:#f8faff;
+  --surface-2:#f0f5ff; --text:#0b1f3a; --muted:#5a6b86;
+  --line:#dde6f5; --line-2:#c8d8ef;
+  --good:#16a34a; --good-bg:#e7f7ec;
+  --warn:#d97706; --warn-bg:#fdf0db;
+  --bad:#dc2626; --bad-bg:#fde8e8;
+  --blue:#1B4FA8; --blue-bg:#e8f0ff;
+  --grad-navy:linear-gradient(135deg,#0B2F68 0%,#123D85 60%,#1B4FA8 100%);
+  --grad-gold:linear-gradient(135deg,#F5E6C0 0%,#C9972D 50%,#A07820 100%);
+  --shadow-sm:0 2px 8px rgba(11,47,104,.08);
+  --shadow:0 8px 30px rgba(11,47,104,.14);
+  --shadow-lg:0 20px 50px rgba(11,47,104,.22);
+  --shadow-gold:0 12px 36px rgba(201,151,45,.35);
+  --radius:18px; --radius-sm:10px;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--off-white);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.1}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ---- LOGIN OVERLAY ---- */
+#loginOverlay{position:fixed;inset:0;background:var(--grad-navy);display:grid;place-items:center;z-index:200;padding:20px;}
+#loginOverlay.hidden{display:none}
+.login-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:380px;overflow:hidden;}
+.login-top{background:var(--grad-navy);padding:28px;text-align:center;}
+.login-top .logo{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--gold);display:grid;place-items:center;margin:0 auto 12px;}
+.login-top .logo svg{width:30px;height:30px;}
+.login-top h2{font-family:var(--font-display);color:#fff;font-size:1.3rem;}
+.login-top p{color:rgba(220,232,255,.75);font-size:.8rem;margin-top:4px;}
+.login-body{padding:24px;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.field label{font-weight:700;font-size:.8rem;color:var(--navy);}
+.input{width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--line-2);font-family:var(--font-body);font-size:.9rem;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s;}
+.input:focus{outline:0;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,47,104,.1);}
+.btn-login{width:100%;padding:13px;border-radius:999px;font-family:var(--font-body);font-weight:700;font-size:.96rem;background:var(--grad-gold);color:var(--navy);box-shadow:var(--shadow-gold);border:0;cursor:pointer;transition:all .2s;}
+.btn-login:hover{transform:translateY(-2px);}
+.msg{font-size:.82rem;padding:9px 12px;border-radius:8px;margin-bottom:12px;}
+.msg.error{background:var(--bad-bg);color:var(--bad);}
+
+/* ---- LAYOUT ---- */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+/* ---- SIDEBAR ---- */
+.sidebar{background:var(--grad-navy);color:#dce8ff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sb-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo-row{display:flex;align-items:center;gap:10px;}
+.sb-logo{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--gold);display:grid;place-items:center;flex-shrink:0;}
+.sb-logo svg{width:22px;height:22px;}
+.sb-title{font-family:var(--font-display);font-size:.95rem;color:#fff;line-height:1.2;}
+.sb-title small{font-family:var(--font-body);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-top:2px;}
+.sb-staff{margin:14px 14px 4px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:10px;}
+.sb-avatar{width:36px;height:36px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-weight:800;color:var(--navy);font-size:1rem;flex-shrink:0;}
+.sb-sname{font-weight:700;font-size:.85rem;color:#fff;line-height:1.2;}
+.sb-role{font-size:.66rem;color:var(--gold);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.08em;}
+.sb-nav{flex:1;padding:8px 10px;display:flex;flex-direction:column;gap:2px;}
+.sb-nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-sm);font-weight:600;font-size:.88rem;color:rgba(220,232,255,.72);cursor:pointer;transition:all .2s;}
+.sb-nav a svg{width:17px;height:17px;flex-shrink:0;opacity:.7;}
+.sb-nav a:hover{background:rgba(255,255,255,.1);color:#fff;}
+.sb-nav a:hover svg{opacity:1;}
+.sb-nav a.active{background:rgba(201,151,45,.15);color:var(--gold);border:1px solid rgba(201,151,45,.25);}
+.sb-nav a.active svg{opacity:1;}
+.sb-section{font-size:.62rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.32);padding:12px 12px 4px;margin-top:4px;}
+.sb-bottom{padding:14px;border-top:1px solid rgba(255,255,255,.1);}
+.btn-logout{width:100%;padding:10px;border-radius:999px;font-weight:700;font-size:.84rem;background:rgba(255,255,255,.08);color:rgba(220,232,255,.8);border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:all .2s;}
+.btn-logout:hover{background:rgba(255,255,255,.15);color:#fff;}
+
+/* ---- MAIN ---- */
+.main{display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 28px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm);}
+.topbar-title{font-family:var(--font-display);font-size:1.2rem;color:var(--navy);margin-right:auto;}
+.topbar-title small{font-family:var(--font-body);font-size:.72rem;color:var(--muted);display:block;font-weight:500;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(22,163,74,.15);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(22,163,74,.15)}50%{box-shadow:0 0 0 8px rgba(22,163,74,.08)}}
+.live-label{font-size:.76rem;font-weight:700;color:var(--good);}
+
+/* 🚚 NEW DELIVERY ALERT */
+.delivery-alert{
+  position:sticky;top:0;z-index:60;
+  display:none;align-items:center;gap:14px;
+  margin:0;padding:14px 22px;
+  background:linear-gradient(135deg,#0B2F68 0%,#123D85 55%,#C9972D 140%);
+  color:#fff;box-shadow:0 8px 30px rgba(11,47,104,.35);
+  border-bottom:2px solid var(--gold);
+}
+.delivery-alert.show{display:flex;animation:slideDown .4s cubic-bezier(.16,1,.3,1);}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
+.da-pulse{font-size:1.7rem;animation:daBounce 1s ease infinite;}
+@keyframes daBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.da-text{flex:1;line-height:1.25;}
+.da-title{font-family:var(--font-display);font-weight:800;font-size:1.05rem;letter-spacing:.01em;}
+.da-sub{font-size:.82rem;color:rgba(255,255,255,.85);margin-top:2px;}
+.da-view{
+  background:var(--gold);color:#0B2F68;font-weight:800;font-size:.84rem;
+  padding:9px 20px;border-radius:999px;cursor:pointer;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(201,151,45,.4);transition:transform .15s;
+}
+.da-view:hover{transform:translateY(-1px);}
+.da-close{
+  background:rgba(255,255,255,.15);color:#fff;width:30px;height:30px;
+  border-radius:50%;font-size:.8rem;cursor:pointer;flex-shrink:0;transition:background .2s;
+}
+.da-close:hover{background:rgba(255,255,255,.28);}
+.row-flash{animation:rowFlash 2.4s ease;}
+@keyframes rowFlash{0%,100%{background:transparent}18%{background:rgba(201,151,45,.22)}}
+.content{padding:24px 28px;flex:1;}
+
+/* ---- CARDS ---- */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);}
+.grid{display:grid;gap:16px;}
+.g2{grid-template-columns:repeat(2,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+
+/* ---- STAT CARDS ---- */
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.stat-card::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad-gold);}
+.stat-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;}
+.stat-ic.navy{background:var(--blue-bg);color:var(--navy);}
+.stat-ic.gold{background:var(--gold-light);color:var(--gold-2);}
+.stat-ic.green{background:var(--good-bg);color:var(--good);}
+.stat-ic.warn{background:var(--warn-bg);color:var(--warn);}
+.stat-ic svg{width:20px;height:20px;}
+.stat-val{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:var(--navy);line-height:1;}
+.stat-lbl{font-size:.76rem;color:var(--muted);font-weight:600;margin-top:3px;}
+
+/* ---- STATUS TABS ---- */
+.status-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.stab{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:.8rem;background:#fff;border:1.5px solid var(--line-2);color:var(--muted);cursor:pointer;transition:all .2s;}
+.stab:hover{border-color:var(--navy);color:var(--navy);}
+.stab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.stab .count{background:rgba(255,255,255,.25);border-radius:999px;padding:1px 7px;font-size:.72rem;}
+.stab:not(.active) .count{background:var(--surface-2);color:var(--navy);}
+
+/* ---- ORDER TABLE ---- */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:left;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 12px;border-bottom:2px solid var(--line);}
+tbody td{padding:13px 12px;font-size:.86rem;border-bottom:1px solid var(--line);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:0;}
+tbody tr:hover{background:var(--off-white);}
+.order-id{font-weight:700;color:var(--navy);font-size:.8rem;}
+.customer-info .cname{font-weight:700;font-size:.88rem;}
+.customer-info .cphone{font-size:.75rem;color:var(--muted);}
+.product-tag{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.82rem;}
+
+/* ---- BADGES ---- */
+.badge{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:.68rem;padding:4px 9px;border-radius:999px;}
+.b-pending{color:var(--warn);background:var(--warn-bg);}
+.b-confirmed{color:var(--blue);background:var(--blue-bg);}
+.b-preparing{color:#7c3aed;background:#f3e8ff;}
+.b-out{color:var(--navy);background:#dbeafe;}
+.b-delivered{color:var(--good);background:var(--good-bg);}
+.b-cancelled{color:var(--bad);background:var(--bad-bg);}
+
+/* ---- ACTION BUTTONS ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:.78rem;background:#fff;color:var(--navy);border:1.5px solid var(--line-2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn:hover{border-color:var(--navy);box-shadow:var(--shadow-sm);}
+.btn svg{width:13px;height:13px;}
+.btn-navy{background:var(--navy);color:#fff;border:0;}
+.btn-gold{background:var(--grad-gold);color:var(--navy);border:0;box-shadow:var(--shadow-gold);}
+.btn-green{background:var(--good);color:#fff;border:0;}
+.btn-sm{padding:6px 10px;font-size:.75rem;}
+
+/* ---- SECTION VIEWS ---- */
+.section-view{display:none;}
+.section-view.active{display:block;}
+
+/* ---- ORDER DETAIL MODAL ---- */
+.modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:rgba(6,12,28,.45);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .25s;}
+.modal.open{opacity:1;visibility:visible;}
+.modal-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;transform:scale(.94);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.modal.open .modal-card{transform:none;}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.modal-body{padding:24px;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;cursor:pointer;}
+
+/* ---- STATUS FLOW ---- */
+.status-flow{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;}
+.sf-btn{padding:9px 14px;border-radius:999px;font-weight:700;font-size:.8rem;border:1.5px solid var(--line-2);cursor:pointer;transition:all .2s;background:#fff;color:var(--muted);}
+.sf-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.sf-btn.pending{border-color:var(--warn);color:var(--warn);}
+.sf-btn.confirmed{border-color:var(--blue);color:var(--blue);}
+.sf-btn.preparing{border-color:#7c3aed;color:#7c3aed;}
+.sf-btn.out_for_delivery{border-color:var(--navy);color:var(--navy);}
+.sf-btn.delivered{border-color:var(--good);color:var(--good);background:var(--good-bg);}
+.sf-btn.cancelled{border-color:var(--bad);color:var(--bad);}
+
+.divider{height:1px;background:var(--line);margin:14px 0;}
+.flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}.gap-2{gap:8px;}.gap-3{gap:14px;}.wrap-x{flex-wrap:wrap;}
+.muted{color:var(--muted);}.fw7{font-weight:700;}.fw8{font-weight:800;}.fs-sm{font-size:.85rem;}.fs-xs{font-size:.75rem;}.txt-navy{color:var(--navy);}.mt-2{margin-top:8px;}.mt-3{margin-top:14px;}.mt-4{margin-top:20px;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-state .ei{font-size:2.5rem;margin-bottom:10px;}
+.spinner-inline{width:16px;height:16px;border:2px solid rgba(11,47,104,.15);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---- CUSTOMER LIST ---- */
+.customer-row{display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--radius-sm);border:1px solid var(--line);background:#fff;transition:all .2s;}
+.customer-row:hover{border-color:var(--gold);box-shadow:var(--shadow-sm);}
+.c-avatar{width:42px;height:42px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:1.1rem;flex-shrink:0;}
+.tier-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.68rem;font-weight:700;}
+.tier-Standard{background:var(--surface-2);color:var(--muted);}
+.tier-Royal{background:var(--blue-bg);color:var(--blue);}
+.tier-Queen{background:var(--gold-light);color:var(--gold-2);}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.g4{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-top">
+      <div class="logo" style="background:#fff;overflow:hidden;">
+        <img src="logo.jpg" alt="Clean Queen" style="width:100%;height:100%;object-fit:contain;border-radius:50%;"/>
+      </div>
+      <h2>Operator Access</h2>
+      <p>Clean Queen Staff Dashboard</p>
+    </div>
+    <div class="login-body">
+      <div id="loginMsg" class="msg error" style="display:none"></div>
+      <div class="field"><label>Email</label><input class="input" type="email" id="opEmail" placeholder="staff@cleanqueen.com"/></div>
+      <div class="field"><label>Password</label><input class="input" type="password" id="opPassword" placeholder="••••••••"/></div>
+      <button class="btn-login" onclick="staffLogin()">Sign In to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="layout" id="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo-row">
+        <div class="sb-logo" style="background:#fff;overflow:hidden;">
+          <img src="logo.jpg" alt="Clean Queen" style="width:100%;height:100%;object-fit:contain;border-radius:50%;"/>
+        </div>
+        <div class="sb-title">Clean Queen <small>Operator Panel</small></div>
+      </div>
+    </div>
+    <div class="sb-staff">
+      <div class="sb-avatar" id="staffAvatar">?</div>
+      <div>
+        <div class="sb-sname" id="staffName">Loading…</div>
+        <div class="sb-role" id="staffRole">Staff</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Operations</div>
+      <a class="active" onclick="showSection('orders',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Orders <span id="sbPendingCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(201,151,45,.2);color:var(--gold);border:none;display:none"></span>
+      </a>
+      <a onclick="showSection('customers',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <div class="sb-section">Manager</div>
+      <a onclick="showSection('closing',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Daily Closing
+      </a>
+      <a onclick="showSection('reports',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Shop Reports
+      </a>
+      <div class="sb-section">Account</div>
+      <a href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Customer Website
+      </a>
+    </nav>
+    <div class="sb-bottom">
+      <button class="btn-logout" onclick="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        <span id="pageTitle">Orders</span>
+        <small id="pageSubtitle">Manage incoming orders</small>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="live-dot"></div>
+        <span class="live-label">Live</span>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="loadOrders()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- 🚚 NEW DELIVERY ALERT (fires when a customer places a new order) -->
+    <div id="deliveryAlert" class="delivery-alert" role="alert">
+      <div class="da-pulse">🚚</div>
+      <div class="da-text">
+        <div class="da-title">New Delivery Order!</div>
+        <div class="da-sub" id="daSub">A customer just placed an order.</div>
+      </div>
+      <button class="da-view" onclick="viewNewDelivery()">View Order</button>
+      <button class="da-close" onclick="dismissAlert()" aria-label="Dismiss">✕</button>
+    </div>
+
+    <div class="content">
+
+      <!-- ORDERS -->
+      <div class="section-view active" id="sec-orders">
+        <!-- Stats -->
+        <div class="grid g4 mt-0" style="margin-bottom:20px" id="statsRow">
+          <div class="stat-card"><div class="stat-ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-val" id="statPending">—</div><div class="stat-lbl">Pending</div></div></div>
+          <div class="stat-card"><div class="stat-ic navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div><div class="stat-val" id="statOut">—</div><div class="stat-lbl">Out for Delivery</div></div></div>
+          <div class="stat-card"><div class="stat-ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg></div><div><div class="stat-val" id="statDelivered">—</div><div class="stat-lbl">Delivered Today</div></div></div>
+          <div class="stat-card"><div class="stat-ic gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="stat-val" id="statRevenue">—</div><div class="stat-lbl">Revenue Today</div></div></div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="status-tabs">
+          <div class="stab active" onclick="filterOrders('all',this)">All <span class="count" id="cntAll">0</span></div>
+          <div class="stab" onclick="filterOrders('pending',this)">🕐 Pending <span class="count" id="cntPending">0</span></div>
+          <div class="stab" onclick="filterOrders('confirmed',this)">✓ Confirmed <span class="count" id="cntConfirmed">0</span></div>
+          <div class="stab" onclick="filterOrders('preparing',this)">🏭 Preparing <span class="count" id="cntPreparing">0</span></div>
+          <div class="stab" onclick="filterOrders('out_for_delivery',this)">🛵 On the Way <span class="count" id="cntOut">0</span></div>
+          <div class="stab" onclick="filterOrders('delivered',this)">✅ Delivered <span class="count" id="cntDelivered">0</span></div>
+        </div>
+
+        <div class="card">
+          <div id="ordersLoading" class="empty-state"><div class="spinner-inline"></div> Loading orders…</div>
+          <div id="ordersEmpty" class="empty-state" style="display:none"><div class="ei">📭</div><p>No orders found.</p></div>
+          <div class="table-wrap" id="ordersTableWrap" style="display:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Amount</th>
+                  <th>Delivery</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /orders -->
+
+      <!-- CUSTOMERS -->
+      <div class="section-view" id="sec-customers">
+        <div class="card" style="margin-bottom:16px">
+          <input class="input" type="search" id="customerSearch" placeholder="Search by name or phone…" oninput="filterCustomers()" style="max-width:340px"/>
+        </div>
+        <div id="customersLoading" class="empty-state"><div class="spinner-inline"></div> Loading customers…</div>
+        <div id="customersEmpty" class="empty-state" style="display:none"><div class="ei">👥</div><p>No customers yet.</p></div>
+        <div id="customersList" style="display:flex;flex-direction:column;gap:10px;display:none"></div>
+      </div><!-- /customers -->
+
+      <!-- DAILY CLOSING -->
+      <div class="section-view" id="sec-closing">
+        <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <label class="fw7 fs-sm txt-navy">Date:</label>
+          <input class="input" type="date" id="closingDate" style="max-width:180px" onchange="loadClosingDay()"/>
+          <span id="closingDateStatus" class="badge" style="background:var(--warn-bg);color:var(--warn)">Not saved yet</span>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn" onclick="printEodReport()">🖨️ Print / Save PDF</button>
+            <button class="btn btn-navy" onclick="downloadEodCSV()">⬇️ Download CSV</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:4px">💧 Meter Readings (gallons)</h3>
+          <p class="fs-sm muted" style="margin-bottom:14px">Opening carries over automatically from the last saved closing reading. Enter today's closing reading for each product.</p>
+          <table>
+            <thead><tr><th>Product</th><th>Opening</th><th>Closing</th><th>Gallons Dispensed</th><th>Meter Replaced?</th><th></th></tr></thead>
+            <tbody id="meterRowsBody"></tbody>
+          </table>
+        </div>
+
+        <div class="grid g2" style="margin-bottom:16px">
+          <div class="card">
+            <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px">💰 Today's Sales</h3>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div><label class="fs-sm fw7 txt-navy">Cash</label><input class="input" type="number" step="0.01" id="salesCash" placeholder="0.00" oninput="updateSalesTotal()"/></div>
+              <div><label class="fs-sm fw7 txt-navy">GCash / Digital</label><input class="input" type="number" step="0.01" id="salesGcash" placeholder="0.00" oninput="updateSalesTotal()"/></div>
+              <div><label class="fs-sm fw7 txt-navy">Other</label><input class="input" type="number" step="0.01" id="salesOther" placeholder="0.00" oninput="updateSalesTotal()"/></div>
+              <div class="flex justify-between fw8 txt-navy" style="border-top:1px solid var(--line);padding-top:10px"><span>Total Sales</span><span id="salesTotalDisplay">₱0.00</span></div>
+              <textarea class="input" id="salesNotes" placeholder="Notes (optional)" rows="2" style="resize:vertical"></textarea>
+              <button class="btn btn-gold" onclick="saveClosingDay()">💾 Save Day's Closing</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px">📋 End-of-Day Summary</h3>
+            <div style="display:flex;flex-direction:column;gap:9px" class="fs-sm">
+              <div class="flex justify-between"><span class="muted">Total Gallons Dispensed</span><strong id="sumGallons">—</strong></div>
+              <div class="flex justify-between"><span class="muted">Total Sales</span><strong id="sumSales">—</strong></div>
+              <div class="flex justify-between"><span class="muted">AR Issued Today</span><strong id="sumArIssued">—</strong></div>
+              <div class="flex justify-between"><span class="muted">AR Collected Today</span><strong id="sumArCollected">—</strong></div>
+              <div class="flex justify-between" style="border-top:1px solid var(--line);padding-top:9px"><span class="muted">Total AR Outstanding (all-time)</span><strong id="sumArTotal" style="color:var(--warn)">—</strong></div>
+              <div class="flex justify-between"><span class="muted">Delivery Orders Today</span><strong id="sumDeliveries">—</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:4px">📒 Credit Sales (Utang)</h3>
+          <p class="fs-sm muted" style="margin-bottom:14px">Log a credit sale, or mark an existing balance paid (partial payments are fine).</p>
+          <div class="flex gap-2 wrap-x" style="margin-bottom:16px">
+            <input class="input" type="text" id="arName" placeholder="Customer name" style="flex:1;min-width:140px"/>
+            <input class="input" type="text" id="arPhone" placeholder="Phone (optional)" style="flex:1;min-width:120px"/>
+            <input class="input" type="number" step="0.01" id="arAmount" placeholder="Amount ₱" style="max-width:120px"/>
+            <input class="input" type="text" id="arNotes" placeholder="Notes (optional)" style="flex:1;min-width:120px"/>
+            <button class="btn btn-navy" onclick="addArEntry()">+ Add</button>
+          </div>
+          <div id="arLoading" class="empty-state" style="padding:20px"><div class="spinner-inline"></div> Loading…</div>
+          <div id="arEmpty" class="empty-state" style="display:none;padding:20px"><div class="ei">✅</div><p>No outstanding credit balances.</p></div>
+          <table id="arTable" style="display:none">
+            <thead><tr><th>Customer</th><th>Phone</th><th>Date</th><th>Amount</th><th>Paid</th><th>Outstanding</th><th></th></tr></thead>
+            <tbody id="arTableBody"></tbody>
+          </table>
+        </div>
+      </div><!-- /closing -->
+
+      <!-- SHOP REPORTS -->
+      <div class="section-view" id="sec-reports">
+        <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <label class="fw7 fs-sm txt-navy">From:</label>
+          <input class="input" type="date" id="reportFrom" style="max-width:170px"/>
+          <label class="fw7 fs-sm txt-navy">To:</label>
+          <input class="input" type="date" id="reportTo" style="max-width:170px"/>
+          <button class="btn btn-navy" onclick="loadShopReports()">Load Report</button>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-gold" onclick="downloadShopReportsCSV()">⬇️ Download CSV</button>
+            <button class="btn" onclick="downloadOrdersCSV()">⬇️ All Delivery Orders CSV</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div id="reportsLoading" class="empty-state"><div class="spinner-inline"></div> Loading…</div>
+          <div id="reportsEmpty" class="empty-state" style="display:none"><div class="ei">📊</div><p>Pick a date range and click "Load Report."</p></div>
+          <table id="reportsTable" style="display:none">
+            <thead><tr><th>Date</th><th>Cash</th><th>GCash</th><th>Other</th><th>Total Sales</th><th>Alkaline gal</th><th>Mineral gal</th><th>Purified gal</th><th>Total gal</th><th>AR Issued</th></tr></thead>
+            <tbody id="reportsTableBody"></tbody>
+            <tfoot id="reportsTableFoot" style="font-weight:800"></tfoot>
+          </table>
+        </div>
+      </div><!-- /reports -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal" id="orderModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;color:var(--navy)" id="modalOrderId">Order Details</h3>
+      <div class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://qtciwkgkuxqrxnqkfnvt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0Y2l3a2drdXhxcnhucWtmbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTY1NTcsImV4cCI6MjA5NzA5MjU1N30.HtoA-yjP9Jux34GrX0rFU6GShJOP3hDnpKTASIG75to';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allOrders = [];
+let allCustomers = [];
+let currentFilter = 'all';
+let currentStaff = null;
+
+// ---- AUTH ----
+async function staffLogin() {
+  const email = document.getElementById('opEmail').value.trim();
+  const pass  = document.getElementById('opPassword').value;
+  if (!email || !pass) return showLoginMsg('Please enter email and password.');
+
+  const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+  if (error) return showLoginMsg(error.message);
+
+  // Verify this user is in the staff table (SECURITY DEFINER RPC on auth.uid())
+  const { data: staff } = await db.rpc('cq_staff_check', { p_uid: data.user.id });
+  if (!staff) {
+    await db.auth.signOut();
+    return showLoginMsg('Access denied. This account is not registered as Clean Queen staff.');
+  }
+  initDashboard(staff);
+}
+
+function showLoginMsg(msg) {
+  const el = document.getElementById('loginMsg');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function initDashboard(staff) {
+  currentStaff = staff;
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('app').style.display = 'grid';
+  document.getElementById('staffName').textContent = staff.name;
+  document.getElementById('staffRole').textContent = staff.role;
+  document.getElementById('staffAvatar').textContent = staff.name.charAt(0).toUpperCase();
+
+  // Ask for desktop notification permission so alerts show even in another tab.
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  await loadOrders();
+
+  // Poll for new/updated orders every 15s. (Realtime isn't available here: the
+  // clean_queen schema isn't exposed, so all reads go through public RPCs.)
+  // New orders that appear between polls trigger the delivery alert.
+  if (window._cqPoll) clearInterval(window._cqPoll);
+  window._cqPoll = setInterval(loadOrders, 15000);
+}
+
+async function signOut() {
+  if (window._cqPoll) clearInterval(window._cqPoll);
+  await db.auth.signOut();
+  window.location.reload();
+}
+
+// ---- Check session on load ----
+db.auth.getSession().then(async ({ data }) => {
+  if (data.session) {
+    const { data: staff } = await db.rpc('cq_staff_check', { p_uid: data.session.user.id });
+    if (staff) initDashboard(staff);
+  }
+});
+
+// ---- NAVIGATION ----
+function showSection(id, linkEl) {
+  document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.sb-nav a').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+
+  const titles = {
+    orders: ['Orders','Manage incoming orders'],
+    customers: ['Customers','All registered customers'],
+    closing: ['Daily Closing','Meter readings, sales & credit for the day'],
+    reports: ['Shop Reports','Download sales, gallons & AR history']
+  };
+  const [title, sub] = titles[id] || ['',''];
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSubtitle').textContent = sub;
+
+  if (id === 'customers') loadCustomers();
+  if (id === 'closing') initClosingDay();
+  if (id === 'reports') initReportsDates();
+}
+
+// ---- ORDERS ----
+let knownOrderIds = null;   // null until first load; then a Set of seen order ids
+
+async function loadOrders() {
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data, error } = await db.rpc('cq_operator_orders');
+
+  if (error) { console.error(error); return; }
+  allOrders = data || [];
+
+  // Detect brand-new orders since the last poll and alert staff.
+  // First load just seeds the baseline (no alert storm on sign-in).
+  const currentIds = new Set(allOrders.map(o => o.id));
+  if (knownOrderIds) {
+    const fresh = allOrders.filter(o => !knownOrderIds.has(o.id));
+    if (fresh.length) {
+      fresh.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      alertNewDelivery(fresh[0], fresh.length);
+    }
+  }
+  knownOrderIds = currentIds;
+
+  renderOrders();
+  updateStats(today);
+}
+
+// ---- 🚚 NEW DELIVERY ALERT ----
+let newDeliveryId = null;
+
+function alertNewDelivery(order, count) {
+  newDeliveryId = order?.id || null;
+  const who  = order?.customer?.name ? order.customer.name + ' — ' : '';
+  const addr = order?.delivery_address || 'address on file';
+  const amt  = order?.total_amount != null ? ' · ₱' + Number(order.total_amount).toLocaleString() : '';
+  const more = count > 1 ? `  (+${count - 1} more new)` : '';
+  document.getElementById('daSub').textContent = who + 'Deliver to ' + addr + amt + more;
+
+  const el = document.getElementById('deliveryAlert');
+  el.classList.add('show');
+  playChime();
+
+  if ('Notification' in window && Notification.permission === 'granted') {
+    const n = new Notification('🚚 New Clean Queen Delivery!' + more, {
+      body: who + addr + amt, tag: 'cq-delivery'
+    });
+    n.onclick = () => { window.focus(); viewNewDelivery(); n.close(); };
+  }
+}
+
+function dismissAlert() {
+  document.getElementById('deliveryAlert').classList.remove('show');
+}
+
+function viewNewDelivery() {
+  dismissAlert();
+  const ordersLink = document.querySelector('.sb-nav a');
+  showSection('orders', ordersLink);
+  // If the new order is filtered out of view, switch to "All" so it's visible.
+  if (currentFilter !== 'all') {
+    const allTab = document.querySelector('.stab');
+    filterOrders('all', allTab);
+  }
+  setTimeout(() => {
+    const row = newDeliveryId && document.querySelector('tr[data-order="' + newDeliveryId + '"]');
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.remove('row-flash'); void row.offsetWidth; row.classList.add('row-flash');
+    }
+  }, 150);
+}
+
+// Short two-tone chime via Web Audio API (no sound file needed).
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[880, 0], [1174, .16]].forEach(([freq, start]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.connect(gain); gain.connect(ctx.destination);
+      const t = ctx.currentTime + start;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(.35, t + .03);
+      gain.gain.exponentialRampToValueAtTime(.001, t + .5);
+      osc.start(t); osc.stop(t + .5);
+    });
+  } catch (e) { /* audio unavailable — banner + notification still fire */ }
+}
+
+function updateStats(today) {
+  const todayOrders = allOrders.filter(o => o.delivery_date === today || o.created_at?.startsWith(today));
+  document.getElementById('statPending').textContent   = allOrders.filter(o => o.status === 'pending').length;
+  document.getElementById('statOut').textContent       = allOrders.filter(o => o.status === 'out_for_delivery').length;
+  document.getElementById('statDelivered').textContent = todayOrders.filter(o => o.status === 'delivered').length;
+  document.getElementById('statRevenue').textContent   = '₱' + todayOrders.filter(o => o.status === 'delivered').reduce((s,o) => s + Number(o.total_amount), 0).toLocaleString();
+
+  const pending = allOrders.filter(o => o.status === 'pending').length;
+  const pc = document.getElementById('sbPendingCount');
+  if (pending > 0) { pc.textContent = pending; pc.style.display = 'inline-flex'; }
+  else pc.style.display = 'none';
+
+  document.getElementById('cntAll').textContent       = allOrders.length;
+  document.getElementById('cntPending').textContent   = allOrders.filter(o=>o.status==='pending').length;
+  document.getElementById('cntConfirmed').textContent = allOrders.filter(o=>o.status==='confirmed').length;
+  document.getElementById('cntPreparing').textContent = allOrders.filter(o=>o.status==='preparing').length;
+  document.getElementById('cntOut').textContent       = allOrders.filter(o=>o.status==='out_for_delivery').length;
+  document.getElementById('cntDelivered').textContent = allOrders.filter(o=>o.status==='delivered').length;
+}
+
+function filterOrders(status, el) {
+  currentFilter = status;
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderOrders();
+}
+
+const STATUS_LABELS = {
+  pending: 'Pending', confirmed: 'Confirmed', preparing: 'Preparing',
+  out_for_delivery: 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled'
+};
+const STATUS_BADGE = {
+  pending: 'b-pending', confirmed: 'b-confirmed', preparing: 'b-preparing',
+  out_for_delivery: 'b-out', delivered: 'b-delivered', cancelled: 'b-cancelled'
+};
+const NEXT_STATUS = {
+  pending: 'confirmed', confirmed: 'preparing', preparing: 'out_for_delivery', out_for_delivery: 'delivered'
+};
+const NEXT_LABEL = {
+  pending: '✓ Confirm', confirmed: '🏭 Preparing', preparing: '🛵 Out for Delivery', out_for_delivery: '✅ Delivered'
+};
+
+function renderOrders() {
+  const filtered = currentFilter === 'all' ? allOrders : allOrders.filter(o => o.status === currentFilter);
+  const loading  = document.getElementById('ordersLoading');
+  const empty    = document.getElementById('ordersEmpty');
+  const wrap     = document.getElementById('ordersTableWrap');
+  const body     = document.getElementById('ordersBody');
+
+  loading.style.display = 'none';
+  if (!filtered.length) { empty.style.display = 'block'; wrap.style.display = 'none'; return; }
+  empty.style.display = 'none'; wrap.style.display = 'block';
+
+  body.innerHTML = filtered.map(o => {
+    const items = (o.items || []).map(i => `${i.product?.emoji||'💧'} ${i.product?.name||i.product_name} ×${i.quantity}`).join(', ') || '—';
+    const next  = NEXT_STATUS[o.status];
+    const nextBtn = next ? `<button class="btn btn-navy btn-sm" onclick="advanceStatus('${o.id}','${next}')">${NEXT_LABEL[o.status]}</button>` : '';
+    return `<tr data-order="${o.id}">
+      <td><span class="order-id">#${o.id.slice(-6).toUpperCase()}</span><div class="fs-xs muted mt-2">${new Date(o.created_at).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</div></td>
+      <td><div class="customer-info"><div class="cname">${o.customer?.name||'—'}</div><div class="cphone">${o.customer?.phone||''}</div></div></td>
+      <td><span class="product-tag fs-xs">${items}</span></td>
+      <td class="fw7 txt-navy">₱${Number(o.total_amount).toLocaleString()}</td>
+      <td class="fs-xs muted">${o.delivery_date||'—'}<br>${o.delivery_window||''}</td>
+      <td><span class="badge ${STATUS_BADGE[o.status]||''}">${STATUS_LABELS[o.status]||o.status}</span></td>
+      <td><div class="flex gap-2">${nextBtn}<button class="btn btn-sm" onclick="openModal('${o.id}')">Details</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function advanceStatus(orderId, newStatus) {
+  let rider = null;
+  if (newStatus === 'out_for_delivery') {
+    rider = (prompt('Rider name (optional):') || '').trim() || null;
+  }
+
+  const { error } = await db.rpc('cq_advance_order_status', {
+    p_order_id:   orderId,
+    p_status:     newStatus,
+    p_rider_name: rider
+  });
+  if (error) alert('Error: ' + error.message);
+  else await loadOrders();
+}
+
+// ---- ORDER MODAL ----
+function openModal(orderId) {
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+  document.getElementById('modalOrderId').textContent = 'Order #' + o.id.slice(-6).toUpperCase();
+  const items = (o.items||[]).map(i => `<div class="flex justify-between fs-sm"><span>${i.product?.emoji||'💧'} ${i.product?.name||i.product_name} ×${i.quantity}</span><span class="fw7">₱${Number(i.subtotal).toLocaleString()}</span></div>`).join('');
+  const next = NEXT_STATUS[o.status];
+  const statusBtns = ['pending','confirmed','preparing','out_for_delivery','delivered','cancelled'].map(s =>
+    `<button class="sf-btn ${s} ${o.status===s?'fw8':''}" style="${o.status===s?'opacity:1;background:var(--surface-2)':'opacity:.5'}" onclick="advanceStatus('${o.id}','${s}');closeModal()">${STATUS_LABELS[s]}</button>`
+  ).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="fs-sm"><span class="fw7 txt-navy">Customer:</span> ${o.customer?.name||'—'} · ${o.customer?.phone||'—'}</div>
+    <div class="fs-sm mt-2"><span class="fw7 txt-navy">Address:</span> ${o.delivery_address||'—'}</div>
+    <div class="fs-sm mt-2"><span class="fw7 txt-navy">Delivery:</span> ${o.delivery_date} · ${o.delivery_window}</div>
+    ${o.rider_name ? `<div class="fs-sm mt-2"><span class="fw7 txt-navy">Rider:</span> ${o.rider_name}</div>` : ''}
+    ${o.special_notes ? `<div class="fs-sm mt-2"><span class="fw7 txt-navy">Notes:</span> ${o.special_notes}</div>` : ''}
+    <div class="divider"></div>
+    <div class="fw7 txt-navy fs-sm">Items</div>
+    <div class="mt-2" style="display:flex;flex-direction:column;gap:6px">${items}</div>
+    <div class="divider"></div>
+    <div class="flex justify-between fw8"><span>Total</span><span class="txt-navy">₱${Number(o.total_amount).toLocaleString()}</span></div>
+    <div class="divider"></div>
+    <div class="fw7 txt-navy fs-sm mt-2 mb-2">Update Status</div>
+    <div class="status-flow">${statusBtns}</div>
+    ${next ? `<button class="btn btn-navy mt-3" style="width:100%" onclick="advanceStatus('${o.id}','${next}');closeModal()">${NEXT_LABEL[o.status]}</button>` : ''}
+  `;
+  document.getElementById('orderModal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('orderModal').classList.remove('open'); }
+document.getElementById('orderModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+// ---- CUSTOMERS ----
+async function loadCustomers() {
+  document.getElementById('customersLoading').style.display = 'block';
+  document.getElementById('customersList').style.display = 'none';
+  document.getElementById('customersEmpty').style.display = 'none';
+
+  const { data } = await db.rpc('cq_operator_customers');
+  allCustomers = data || [];
+  renderCustomers(allCustomers);
+  document.getElementById('customersLoading').style.display = 'none';
+}
+
+function filterCustomers() {
+  const q = document.getElementById('customerSearch').value.toLowerCase();
+  renderCustomers(allCustomers.filter(c => (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q)));
+}
+
+function renderCustomers(list) {
+  const el = document.getElementById('customersList');
+  if (!list.length) { el.style.display = 'none'; document.getElementById('customersEmpty').style.display = 'block'; return; }
+  document.getElementById('customersEmpty').style.display = 'none';
+  el.style.display = 'flex';
+  el.innerHTML = list.map(c => `
+    <div class="customer-row">
+      <div class="c-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1">
+        <div class="fw7 txt-navy">${c.name||'—'}</div>
+        <div class="fs-xs muted">${c.phone||c.email||'—'} · ${c.address||'No address'}</div>
+      </div>
+      <span class="tier-chip tier-${c.tier||'Standard'}">${c.tier||'Standard'}</span>
+      <div class="flex gap-2 items-center" style="margin-left:8px">
+        <span class="fw7 txt-navy fs-sm">⭐ ${c.loyalty_points||0} pts</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==============================================================
+// DAILY CLOSING — meter readings, sales, AR (utang) ledger
+// ==============================================================
+const METER_PRODUCTS = [
+  { key: 'alkaline', label: 'Alkaline Water', emoji: '💠' },
+  { key: 'mineral',  label: 'Mineral Water',  emoji: '💧' },
+  { key: 'purified', label: 'Purified Water', emoji: '🌊' }
+];
+let lastEodReport = null; // cached eod report for the currently viewed closing date, used by CSV/print
+
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function initClosingDay() {
+  const el = document.getElementById('closingDate');
+  if (!el.value) el.value = todayStr();
+  loadClosingDay();
+}
+
+async function loadClosingDay() {
+  const date = document.getElementById('closingDate').value || todayStr();
+
+  const tbody = document.getElementById('meterRowsBody');
+  tbody.innerHTML = `<tr><td colspan="6" class="empty-state" style="padding:20px"><div class="spinner-inline"></div> Loading meters…</td></tr>`;
+
+  const { data: existingRows } = await db.rpc('cq_get_meters_for_date', { p_date: date });
+  const existingByProduct = {};
+  (existingRows || []).forEach(r => existingByProduct[r.product_type] = r);
+
+  const rowsHtml = await Promise.all(METER_PRODUCTS.map(async p => {
+    const existing = existingByProduct[p.key];
+    let opening = null;
+    if (existing) {
+      opening = existing.opening_reading;
+    } else {
+      const { data: lastClosing } = await db.rpc('cq_get_last_meter_closing', { p_product_type: p.key, p_before_date: date });
+      opening = lastClosing; // null if this product has never been read before
+    }
+    return meterRowHtml(p, existing, opening);
+  }));
+  tbody.innerHTML = rowsHtml.join('');
+
+  await loadArLedger();
+  await refreshSummaryPanel(date, /*prefillSales*/ true);
+}
+
+function meterRowHtml(product, existing, opening) {
+  const noHistory = (opening === null || opening === undefined);
+  const closing = existing ? existing.closing_reading : '';
+  const gallons = existing ? existing.gallons_dispensed : null;
+  const openingVal = noHistory ? '' : Number(opening);
+  return `<tr data-product="${product.key}" data-no-history="${noHistory}">
+    <td class="fw7 txt-navy">${product.emoji} ${product.label}</td>
+    <td>
+      <input class="input meter-opening" type="number" step="0.1"
+             value="${noHistory ? '' : openingVal}" data-orig="${noHistory ? '' : openingVal}"
+             ${noHistory ? '' : 'readonly'} style="max-width:110px${noHistory ? '' : ';background:var(--off-white)'}"
+             placeholder="${noHistory ? 'Enter starting reading' : ''}"/>
+    </td>
+    <td><input class="input meter-closing" type="number" step="0.1" value="${closing}" style="max-width:110px" placeholder="Today's reading" oninput="updateMeterGallons(this)"/></td>
+    <td class="meter-gallons fw8 txt-navy">${gallons !== null && gallons !== undefined ? Number(gallons).toFixed(1)+' gal' : '—'}</td>
+    <td style="text-align:center"><input type="checkbox" class="meter-reset" ${noHistory ? 'checked disabled' : ''} onchange="onMeterResetToggle(this)"/></td>
+    <td><button class="btn btn-sm btn-navy" onclick="saveMeterRow(this)">Save</button></td>
+  </tr>`;
+}
+
+function onMeterResetToggle(checkboxEl) {
+  const tr = checkboxEl.closest('tr');
+  const openingInput = tr.querySelector('.meter-opening');
+  if (checkboxEl.checked) {
+    openingInput.readOnly = false;
+    openingInput.style.background = '#fff';
+  } else {
+    openingInput.value = openingInput.dataset.orig || '';
+    openingInput.readOnly = true;
+    openingInput.style.background = 'var(--off-white)';
+  }
+  updateMeterGallons(tr.querySelector('.meter-closing'));
+}
+
+function updateMeterGallons(closingInputEl) {
+  const tr = closingInputEl.closest('tr');
+  const opening = parseFloat(tr.querySelector('.meter-opening').value);
+  const closing = parseFloat(closingInputEl.value);
+  const cell = tr.querySelector('.meter-gallons');
+  if (isNaN(opening) || isNaN(closing)) { cell.textContent = '—'; return; }
+  cell.textContent = (closing - opening).toFixed(1) + ' gal';
+}
+
+async function saveMeterRow(btnEl) {
+  const tr = btnEl.closest('tr');
+  const product = tr.dataset.product;
+  const noHistory = tr.dataset.noHistory === 'true';
+  const resetChecked = tr.querySelector('.meter-reset').checked;
+  const opening = parseFloat(tr.querySelector('.meter-opening').value);
+  const closing = parseFloat(tr.querySelector('.meter-closing').value);
+  const date = document.getElementById('closingDate').value;
+
+  if (isNaN(closing)) return alert('Please enter today\'s closing reading.');
+  if ((noHistory || resetChecked) && isNaN(opening)) return alert('Please enter the starting (opening) reading.');
+
+  const payload = { p_date: date, p_product_type: product, p_closing_reading: closing };
+  if (noHistory || resetChecked) payload.p_opening_override = opening;
+
+  btnEl.disabled = true; const origLabel = btnEl.textContent; btnEl.textContent = '…';
+  const { data, error } = await db.rpc('cq_save_meter_reading', payload);
+  btnEl.disabled = false;
+
+  if (error) { btnEl.textContent = origLabel; return alert('Error: ' + error.message); }
+
+  // Lock the row in as "saved": opening becomes read-only, reset checkbox clears.
+  tr.dataset.noHistory = 'false';
+  const openingInput = tr.querySelector('.meter-opening');
+  openingInput.value = data.opening_reading;
+  openingInput.dataset.orig = data.opening_reading;
+  openingInput.readOnly = true;
+  openingInput.style.background = 'var(--off-white)';
+  const resetCb = tr.querySelector('.meter-reset');
+  resetCb.checked = false; resetCb.disabled = false;
+  tr.querySelector('.meter-gallons').textContent = Number(data.gallons_dispensed).toFixed(1) + ' gal';
+
+  btnEl.textContent = '✓ Saved'; setTimeout(() => btnEl.textContent = origLabel, 1500);
+  refreshSummaryPanel(date, false);
+}
+
+function updateSalesTotal() {
+  const cash = parseFloat(document.getElementById('salesCash').value) || 0;
+  const gcash = parseFloat(document.getElementById('salesGcash').value) || 0;
+  const other = parseFloat(document.getElementById('salesOther').value) || 0;
+  document.getElementById('salesTotalDisplay').textContent = '₱' + (cash+gcash+other).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+async function saveClosingDay() {
+  const date = document.getElementById('closingDate').value;
+  const cash = parseFloat(document.getElementById('salesCash').value) || 0;
+  const gcash = parseFloat(document.getElementById('salesGcash').value) || 0;
+  const other = parseFloat(document.getElementById('salesOther').value) || 0;
+  const notes = document.getElementById('salesNotes').value.trim() || null;
+
+  const { error } = await db.rpc('cq_save_daily_closing', {
+    p_date: date, p_total_cash: cash, p_total_gcash: gcash, p_total_other: other, p_notes: notes
+  });
+  if (error) return alert('Error: ' + error.message);
+  refreshSummaryPanel(date, false);
+}
+
+async function refreshSummaryPanel(date, prefillSales) {
+  const { data: eod, error } = await db.rpc('cq_get_eod_report', { p_date: date });
+  if (error) { console.error(error); return; }
+  lastEodReport = eod;
+
+  const sales = eod.sales || { total_cash:0, total_gcash:0, total_other:0, total_sales:0, notes:null };
+  const badge = document.getElementById('closingDateStatus');
+  if (eod.sales) { badge.textContent = '✓ Saved'; badge.style.background = 'var(--good-bg)'; badge.style.color = 'var(--good)'; }
+  else { badge.textContent = 'Not saved yet'; badge.style.background = 'var(--warn-bg)'; badge.style.color = 'var(--warn)'; }
+
+  if (prefillSales) {
+    document.getElementById('salesCash').value = sales.total_cash || '';
+    document.getElementById('salesGcash').value = sales.total_gcash || '';
+    document.getElementById('salesOther').value = sales.total_other || '';
+    document.getElementById('salesNotes').value = sales.notes || '';
+    updateSalesTotal();
+  }
+
+  document.getElementById('sumGallons').textContent = Number(eod.total_gallons_dispensed).toFixed(1) + ' gal';
+  document.getElementById('sumSales').textContent = '₱' + Number(sales.total_sales).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('sumArIssued').textContent = '₱' + Number(eod.ar_issued_today).toLocaleString();
+  document.getElementById('sumArCollected').textContent = '₱' + Number(eod.ar_collected_today).toLocaleString();
+  document.getElementById('sumArTotal').textContent = '₱' + Number(eod.ar_total_outstanding).toLocaleString();
+  document.getElementById('sumDeliveries').textContent = `${eod.delivery_orders_today.count} order(s) · ₱${Number(eod.delivery_orders_today.total_amount).toLocaleString()}`;
+}
+
+// ---- AR (utang) ledger ----
+async function loadArLedger() {
+  document.getElementById('arLoading').style.display = 'block';
+  document.getElementById('arTable').style.display = 'none';
+  document.getElementById('arEmpty').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_ar_ledger', { p_only_outstanding: true });
+  document.getElementById('arLoading').style.display = 'none';
+  if (error) { console.error(error); return; }
+  renderArTable(data || []);
+}
+
+function renderArTable(rows) {
+  const table = document.getElementById('arTable');
+  const empty = document.getElementById('arEmpty');
+  if (!rows.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+  empty.style.display = 'none'; table.style.display = 'table';
+  document.getElementById('arTableBody').innerHTML = rows.map(r => `
+    <tr>
+      <td class="fw7 txt-navy">${r.customer_name}</td>
+      <td class="fs-xs muted">${r.customer_phone || '—'}</td>
+      <td class="fs-xs muted">${r.transaction_date}</td>
+      <td>₱${Number(r.amount).toLocaleString()}</td>
+      <td class="fs-xs" style="color:var(--good)">₱${Number(r.paid_amount).toLocaleString()}</td>
+      <td class="fw8" style="color:var(--warn)">₱${Number(r.outstanding).toLocaleString()}</td>
+      <td><button class="btn btn-sm btn-green" onclick="payArEntry('${r.id}', ${r.outstanding})">💰 Pay</button></td>
+    </tr>`).join('');
+}
+
+async function addArEntry() {
+  const name = document.getElementById('arName').value.trim();
+  const phone = document.getElementById('arPhone').value.trim();
+  const amount = parseFloat(document.getElementById('arAmount').value);
+  const notes = document.getElementById('arNotes').value.trim();
+  const date = document.getElementById('closingDate').value || todayStr();
+
+  if (!name) return alert('Please enter the customer\'s name.');
+  if (isNaN(amount) || amount <= 0) return alert('Please enter a valid amount.');
+
+  const { error } = await db.rpc('cq_add_ar_entry', {
+    p_customer_name: name, p_amount: amount, p_phone: phone || null, p_date: date, p_notes: notes || null
+  });
+  if (error) return alert('Error: ' + error.message);
+
+  document.getElementById('arName').value = '';
+  document.getElementById('arPhone').value = '';
+  document.getElementById('arAmount').value = '';
+  document.getElementById('arNotes').value = '';
+  await loadArLedger();
+  refreshSummaryPanel(date, false);
+}
+
+async function payArEntry(id, outstanding) {
+  const input = prompt(`Payment amount (outstanding: ₱${Number(outstanding).toLocaleString()}):`, outstanding);
+  if (input === null) return;
+  const amount = parseFloat(input);
+  if (isNaN(amount) || amount <= 0) return alert('Please enter a valid payment amount.');
+
+  const { error } = await db.rpc('cq_pay_ar_entry', { p_id: id, p_payment: amount });
+  if (error) return alert('Error: ' + error.message);
+
+  await loadArLedger();
+  refreshSummaryPanel(document.getElementById('closingDate').value || todayStr(), false);
+}
+
+// ---- Export: today's report (CSV + print) ----
+function downloadEodCSV() {
+  if (!lastEodReport) return alert('Load a date first.');
+  const e = lastEodReport;
+  const sales = e.sales || { total_cash:0, total_gcash:0, total_other:0, total_sales:0 };
+  const rows = [
+    ['Clean Queen — End of Day Report', e.date],
+    [],
+    ['SALES', ''],
+    ['Cash', sales.total_cash], ['GCash/Digital', sales.total_gcash], ['Other', sales.total_other],
+    ['Total Sales', sales.total_sales],
+    [],
+    ['METER READINGS (gallons)', ''],
+    ...(e.meters||[]).map(m => [m.product_type, `opening ${m.opening_reading} → closing ${m.closing_reading} = ${m.gallons_dispensed} gal`]),
+    ['Total Gallons Dispensed', e.total_gallons_dispensed],
+    [],
+    ['ACCOUNTS RECEIVABLE (Utang)', ''],
+    ['Issued Today', e.ar_issued_today],
+    ['Collected Today', e.ar_collected_today],
+    ['Total Outstanding (all-time)', e.ar_total_outstanding],
+    [],
+    ['DELIVERY ORDERS (website)', ''],
+    ['Count', e.delivery_orders_today.count], ['Amount', e.delivery_orders_today.total_amount]
+  ];
+  downloadCSV(`clean-queen-eod-${e.date}.csv`, rows);
+}
+
+function printEodReport() {
+  if (!lastEodReport) return alert('Load a date first.');
+  const e = lastEodReport;
+  const sales = e.sales || { total_cash:0, total_gcash:0, total_other:0, total_sales:0 };
+  const meterRows = (e.meters||[]).map(m => `<tr><td>${m.product_type}</td><td>${m.opening_reading}</td><td>${m.closing_reading}</td><td>${m.gallons_dispensed}</td></tr>`).join('');
+  const html = `<!doctype html><html><head><title>Clean Queen — EOD ${e.date}</title>
+    <style>body{font-family:system-ui,sans-serif;padding:30px;color:#0B1F3A}
+    h1{color:#0B2F68;font-size:1.3rem}h2{color:#0B2F68;font-size:1rem;margin-top:20px;border-bottom:2px solid #C9972D;padding-bottom:4px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}td,th{padding:6px 10px;border-bottom:1px solid #ddd;text-align:left;font-size:.9rem}
+    .tot{font-weight:800;color:#0B2F68}</style></head><body>
+    <h1>👑 Clean Queen Water — End of Day Report</h1>
+    <p><strong>Date:</strong> ${e.date}</p>
+    <h2>Sales</h2>
+    <table><tr><td>Cash</td><td>₱${sales.total_cash}</td></tr><tr><td>GCash/Digital</td><td>₱${sales.total_gcash}</td></tr><tr><td>Other</td><td>₱${sales.total_other}</td></tr>
+    <tr class="tot"><td>Total Sales</td><td>₱${sales.total_sales}</td></tr></table>
+    <h2>Meter Readings (gallons)</h2>
+    <table><tr><th>Product</th><th>Opening</th><th>Closing</th><th>Dispensed</th></tr>${meterRows}
+    <tr class="tot"><td colspan="3">Total Gallons Dispensed</td><td>${e.total_gallons_dispensed}</td></tr></table>
+    <h2>Accounts Receivable (Utang)</h2>
+    <table><tr><td>Issued Today</td><td>₱${e.ar_issued_today}</td></tr><tr><td>Collected Today</td><td>₱${e.ar_collected_today}</td></tr>
+    <tr class="tot"><td>Total Outstanding (all-time)</td><td>₱${e.ar_total_outstanding}</td></tr></table>
+    <h2>Delivery Orders (website)</h2>
+    <table><tr><td>Count</td><td>${e.delivery_orders_today.count}</td></tr><tr><td>Amount</td><td>₱${e.delivery_orders_today.total_amount}</td></tr></table>
+    </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+}
+
+// ==============================================================
+// SHOP REPORTS — date range history + CSV downloads
+// ==============================================================
+let lastShopReportRows = [];
+
+function initReportsDates() {
+  const from = document.getElementById('reportFrom');
+  const to = document.getElementById('reportTo');
+  if (!to.value) to.value = todayStr();
+  if (!from.value) {
+    const d = new Date(); d.setDate(1);
+    from.value = d.toISOString().slice(0,10);
+  }
+  loadShopReports();
+}
+
+async function loadShopReports() {
+  const from = document.getElementById('reportFrom').value;
+  const to = document.getElementById('reportTo').value;
+  if (!from || !to) return alert('Please pick both dates.');
+
+  document.getElementById('reportsLoading').style.display = 'block';
+  document.getElementById('reportsTable').style.display = 'none';
+  document.getElementById('reportsEmpty').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_shop_reports', { p_from: from, p_to: to });
+  document.getElementById('reportsLoading').style.display = 'none';
+  if (error) { console.error(error); return alert('Error: ' + error.message); }
+
+  lastShopReportRows = data || [];
+  renderReportsTable(lastShopReportRows);
+}
+
+function renderReportsTable(rows) {
+  const table = document.getElementById('reportsTable');
+  const empty = document.getElementById('reportsEmpty');
+  if (!rows.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+  empty.style.display = 'none'; table.style.display = 'table';
+
+  document.getElementById('reportsTableBody').innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.report_date}</td>
+      <td>₱${Number(r.total_cash).toLocaleString()}</td>
+      <td>₱${Number(r.total_gcash).toLocaleString()}</td>
+      <td>₱${Number(r.total_other).toLocaleString()}</td>
+      <td class="fw7 txt-navy">₱${Number(r.total_sales).toLocaleString()}</td>
+      <td>${Number(r.alkaline_gallons).toFixed(1)}</td>
+      <td>${Number(r.mineral_gallons).toFixed(1)}</td>
+      <td>${Number(r.purified_gallons).toFixed(1)}</td>
+      <td class="fw7 txt-navy">${Number(r.total_gallons).toFixed(1)}</td>
+      <td>₱${Number(r.ar_issued).toLocaleString()}</td>
+    </tr>`).join('');
+
+  const totals = rows.reduce((a,r) => ({
+    total_sales: a.total_sales + Number(r.total_sales),
+    total_gallons: a.total_gallons + Number(r.total_gallons),
+    ar_issued: a.ar_issued + Number(r.ar_issued)
+  }), { total_sales:0, total_gallons:0, ar_issued:0 });
+  document.getElementById('reportsTableFoot').innerHTML = `
+    <tr><td colspan="4">TOTAL</td><td>₱${totals.total_sales.toLocaleString()}</td>
+    <td colspan="3"></td><td>${totals.total_gallons.toFixed(1)}</td><td>₱${totals.ar_issued.toLocaleString()}</td></tr>`;
+}
+
+function downloadShopReportsCSV() {
+  if (!lastShopReportRows.length) return alert('Load a report first.');
+  const header = ['Date','Cash','GCash','Other','Total Sales','Alkaline Gal','Mineral Gal','Purified Gal','Total Gal','AR Issued'];
+  const rows = lastShopReportRows.map(r => [r.report_date, r.total_cash, r.total_gcash, r.total_other, r.total_sales, r.alkaline_gallons, r.mineral_gallons, r.purified_gallons, r.total_gallons, r.ar_issued]);
+  const from = document.getElementById('reportFrom').value, to = document.getElementById('reportTo').value;
+  downloadCSV(`clean-queen-shop-report-${from}-to-${to}.csv`, [header, ...rows]);
+}
+
+async function downloadOrdersCSV() {
+  const { data, error } = await db.rpc('cq_operator_orders');
+  if (error) return alert('Error: ' + error.message);
+  const header = ['Order ID','Date','Customer','Phone','Status','Delivery Date','Total Amount','Payment Method'];
+  const rows = (data||[]).map(o => [o.id, o.created_at, o.customer?.name||'', o.customer?.phone||'', o.status, o.delivery_date||'', o.total_amount, o.payment_method||'']);
+  downloadCSV(`clean-queen-delivery-orders-${todayStr()}.csv`, [header, ...rows]);
+}
+
+// ---- Generic CSV download helper ----
+function csvCell(v) {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function downloadCSV(filename, rows2D) {
+  const csv = rows2D.map(row => row.map(csvCell).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# This repo is the WEBSITE only — deliberately allowlisted so business
+# files in this same folder (accounting workbook, brand guideline images,
+# SQL migration notes, archives) never get swept in by a future `git add .`.
+*
+!index.html
+!login.html
+!dashboard.html
+!operator.html
+!logo.jpg
+!vercel.json
+!.gitignore

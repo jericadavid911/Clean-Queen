@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>My Orders — Clean Queen Water Refilling Station</title>
+<meta name="theme-color" content="#0B2F68"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:#0B2F68; --navy-2:#123D85; --gold:#C9972D; --gold-2:#A07820;
+  --gold-light:#F5E6C0; --white:#fff; --off-white:#f8faff;
+  --text:#0b1f3a; --muted:#5a6b86; --line:#dde6f5; --line-2:#c8d8ef;
+  --good:#16a34a; --good-bg:#e7f7ec;
+  --grad-navy:linear-gradient(135deg,#0B2F68 0%,#123D85 60%,#1B4FA8 100%);
+  --grad-gold:linear-gradient(135deg,#F5E6C0 0%,#C9972D 50%,#A07820 100%);
+  --shadow:0 8px 30px rgba(11,47,104,.14);
+  --shadow-lg:0 20px 50px rgba(11,47,104,.22);
+  --shadow-gold:0 12px 36px rgba(201,151,45,.35);
+  --radius:20px; --radius-sm:12px;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--grad-navy);min-height:100vh;display:grid;place-items:center;padding:20px;-webkit-font-smoothing:antialiased;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:420px;overflow:hidden;}
+.card-top{background:var(--grad-navy);padding:32px 32px 28px;text-align:center;position:relative;}
+.card-top::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:24px;background:#fff;border-radius:24px 24px 0 0;}
+.logo-wrap{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--gold);display:grid;place-items:center;margin:0 auto 14px;}
+.logo-wrap svg{width:36px;height:36px;}
+.brand-name{font-family:var(--font-display);font-size:1.5rem;color:#fff;line-height:1.1;}
+.brand-sub{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-top:4px;}
+.card-body{padding:28px 32px 32px;}
+.screen{display:none;animation:fadeIn .3s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.field label{font-weight:700;font-size:.82rem;color:var(--navy);}
+.optional{font-weight:400;color:var(--muted);font-size:.76rem;}
+.input{width:100%;padding:13px 15px;border-radius:var(--radius-sm);border:1.5px solid var(--line-2);font-family:var(--font-body);font-size:.95rem;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s;}
+.input:focus{outline:0;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,47,104,.1);}
+.btn{width:100%;padding:14px;border-radius:999px;font-family:var(--font-body);font-weight:700;font-size:.96rem;cursor:pointer;border:0;transition:all .2s;}
+.btn-gold{background:var(--grad-gold);color:var(--navy);box-shadow:var(--shadow-gold);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(201,151,45,.45);}
+.btn-ghost{background:transparent;border:1.5px solid var(--line-2);color:var(--muted);margin-top:10px;}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.msg{font-size:.82rem;text-align:center;margin-bottom:14px;padding:10px 14px;border-radius:10px;}
+.msg.error{background:#fde8e8;color:#b91c1c;}
+.msg.success{background:var(--good-bg);color:var(--good);}
+.msg.info{background:#e8f0ff;color:var(--navy);}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(11,47,104,.15);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer-note{text-align:center;font-size:.75rem;color:var(--muted);margin-top:20px;line-height:1.5;}
+.footer-note a{color:var(--gold-2);font-weight:600;}
+.hero-text{text-align:center;margin-bottom:22px;}
+.hero-text h3{font-family:var(--font-display);font-size:1.25rem;color:var(--navy);margin-bottom:6px;}
+.hero-text p{color:var(--muted);font-size:.84rem;line-height:1.5;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:16px;}
+.back-link:hover{color:var(--navy);}
+.trust-row{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:16px;font-size:.76rem;color:var(--muted);}
+.trust-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-top">
+    <div class="logo-wrap" style="background:#fff;overflow:hidden;">
+      <img src="logo.jpg" alt="Clean Queen" style="width:100%;height:100%;object-fit:contain;border-radius:50%;"/>
+    </div>
+    <div class="brand-name">Clean Queen</div>
+    <div class="brand-sub">Water Refilling Station</div>
+  </div>
+
+  <div class="card-body">
+
+    <!-- SCREEN 1: Email Lookup -->
+    <div id="screen-email" class="screen active">
+      <div class="hero-text">
+        <h3>View My Orders</h3>
+        <p>Enter your email to access your account and track your deliveries. No password needed.</p>
+      </div>
+      <div id="msg-email" class="msg" style="display:none"></div>
+      <div class="field">
+        <label>Email Address</label>
+        <input class="input" type="email" id="emailInput" placeholder="you@email.com"
+               onkeydown="if(event.key==='Enter')lookupEmail()"/>
+      </div>
+      <button class="btn btn-gold" id="btnLookup" onclick="lookupEmail()">View My Orders →</button>
+      <div class="trust-row">
+        <span>No password</span>
+        <span class="trust-dot"></span>
+        <span>No OTP code</span>
+        <span class="trust-dot"></span>
+        <span>Just your email</span>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: New Customer -->
+    <div id="screen-new" class="screen">
+      <span class="back-link" onclick="showScreen('email')">← Back</span>
+      <div class="hero-text" style="text-align:left">
+        <h3>👑 Welcome!</h3>
+        <p>We couldn't find an account for <strong id="newEmailDisplay" style="color:var(--navy)"></strong>. Let's get you set up — it only takes a moment.</p>
+      </div>
+      <div id="msg-new" class="msg" style="display:none"></div>
+      <div class="field">
+        <label>Full Name</label>
+        <input class="input" type="text" id="newName" placeholder="Maria Santos"/>
+      </div>
+      <div class="field">
+        <label>Mobile Number <span class="optional">(optional)</span></label>
+        <input class="input" type="tel" id="newPhone" placeholder="0917 123 4567"/>
+      </div>
+      <div class="field">
+        <label>Delivery Address <span class="optional">(optional — you can add later)</span></label>
+        <input class="input" type="text" id="newAddress" placeholder="Street, Barangay, Makati City"/>
+      </div>
+      <button class="btn btn-gold" id="btnCreate" onclick="createAccount()">Get Started →</button>
+      <button class="btn btn-ghost" onclick="showScreen('email')">← Use a different email</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer-note" style="margin-top:20px;color:rgba(255,255,255,.5);">
+  © 2026 Clean Queen Water · <a href="index.html" style="color:rgba(255,255,255,.7)">Back to website</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://qtciwkgkuxqrxnqkfnvt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0Y2l3a2drdXhxcnhucWtmbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTY1NTcsImV4cCI6MjA5NzA5MjU1N30.HtoA-yjP9Jux34GrX0rFU6GShJOP3hDnpKTASIG75to';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let _lookupEmail = '';
+
+// Already "signed in" — skip login page
+try {
+  const stored = localStorage.getItem('cq_customer');
+  if (stored && JSON.parse(stored)?.id) window.location.href = 'dashboard.html';
+} catch(e) {}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + name);
+  if (el) el.classList.add('active');
+}
+
+function showMsg(scope, type, text) {
+  const el = document.getElementById('msg-' + scope);
+  if (!el) return;
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  el.style.display = 'block';
+}
+
+async function lookupEmail() {
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  if (!email || !email.includes('@')) return showMsg('email', 'error', 'Please enter a valid email address.');
+
+  const btn = document.getElementById('btnLookup');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Looking up…';
+
+  const { data, error } = await db.rpc('cq_lookup_customer', { p_email: email });
+
+  btn.disabled = false;
+  btn.textContent = 'View My Orders →';
+
+  if (error) {
+    console.error(error);
+    return showMsg('email', 'error', 'Could not reach our system: ' + (error.message || 'unknown error'));
+  }
+
+  if (data) {
+    localStorage.setItem('cq_customer', JSON.stringify(data));
+    window.location.href = 'dashboard.html';
+  } else {
+    _lookupEmail = email;
+    document.getElementById('newEmailDisplay').textContent = email;
+    document.getElementById('msg-email').style.display = 'none';
+    showScreen('new');
+  }
+}
+
+async function createAccount() {
+  const name    = document.getElementById('newName').value.trim();
+  const phone   = document.getElementById('newPhone').value.trim();
+  const address = document.getElementById('newAddress').value.trim();
+
+  if (!name) return showMsg('new', 'error', 'Please enter your name.');
+  if (!_lookupEmail) return showMsg('new', 'error', 'Email missing. Please go back and try again.');
+
+  const btn = document.getElementById('btnCreate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Creating account…';
+
+  const { data, error } = await db.rpc('cq_create_customer', {
+    p_email:   _lookupEmail,
+    p_name:    name,
+    p_phone:   phone   || null,
+    p_address: address || null
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Get Started →';
+
+  if (error) {
+    console.error(error);
+    const m = (error.message || '').toLowerCase();
+
+    // Account was created between our lookup and this insert — just sign them in.
+    if (m.includes('customers_email_unique')) {
+      const { data: existing } = await db.rpc('cq_lookup_customer', { p_email: _lookupEmail });
+      if (existing) {
+        localStorage.setItem('cq_customer', JSON.stringify(existing));
+        window.location.href = 'dashboard.html';
+        return;
+      }
+    }
+    if (m.includes('duplicate') || m.includes('unique')) {
+      return showMsg('new', 'error',
+        'Those details are already linked to another account. Try a different mobile number, or tap "Use a different email".');
+    }
+    // Never tell someone to "try again" on an error that will always fail — say what broke.
+    return showMsg('new', 'error', 'Could not create account: ' + (error.message || 'unknown error'));
+  }
+
+  localStorage.setItem('cq_customer', JSON.stringify(data));
+  window.location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>

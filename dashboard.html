@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>My Dashboard — Clean Queen Water Refilling Station</title>
+<meta name="theme-color" content="#0B2F68"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:#0B2F68; --navy-2:#123D85; --gold:#C9972D; --gold-2:#A07820;
+  --gold-light:#F5E6C0; --gold-glow:rgba(201,151,45,.18);
+  --blue:#1B4FA8; --aqua:#6EBDEB; --white:#fff; --off-white:#f8faff;
+  --surface:#fff; --surface-2:#f0f5ff;
+  --text:#0b1f3a; --muted:#5a6b86; --line:#dde6f5; --line-2:#c8d8ef;
+  --good:#16a34a; --good-bg:#e7f7ec;
+  --warn:#d97706; --warn-bg:#fdf0db;
+  --bad:#dc2626; --bad-bg:#fde8e8;
+  --info-bg:#e8f0ff;
+  --grad-navy:linear-gradient(135deg,#0B2F68 0%,#123D85 60%,#1B4FA8 100%);
+  --grad-gold:linear-gradient(135deg,#F5E6C0 0%,#C9972D 50%,#A07820 100%);
+  --grad-aqua:linear-gradient(135deg,#0B2F68 0%,#1B4FA8 55%,#6EBDEB 100%);
+  --shadow-sm:0 2px 8px rgba(11,47,104,.08);
+  --shadow:0 8px 30px rgba(11,47,104,.14);
+  --shadow-lg:0 20px 50px rgba(11,47,104,.22);
+  --shadow-gold:0 12px 36px rgba(201,151,45,.35);
+  --radius:20px; --radius-sm:12px;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+*::selection{background:var(--gold);color:var(--navy)}
+body{font-family:var(--font-body);background:var(--off-white);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.1}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--grad-navy);color:#dce8ff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid rgba(255,255,255,.08);}
+.sb-brand{padding:28px 24px 22px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo-row{display:flex;align-items:center;gap:12px;}
+.sb-logo{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--gold);display:grid;place-items:center;flex-shrink:0;}
+.sb-logo svg{width:26px;height:26px;}
+.sb-name{font-family:var(--font-display);font-size:1.05rem;color:#fff;line-height:1.2;}
+.sb-name small{display:block;font-family:var(--font-body);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-top:2px;}
+.sb-user{margin:18px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;gap:11px;}
+.sb-avatar{width:40px;height:40px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:1.1rem;flex-shrink:0;}
+.sb-uname{font-weight:700;font-size:.92rem;color:#fff;line-height:1.2;}
+.sb-ustatus{font-size:.7rem;color:var(--gold);font-weight:600;margin-top:2px;}
+.sb-nav{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:2px;}
+.sb-nav a{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;color:rgba(220,232,255,.75);transition:all .2s;cursor:pointer;}
+.sb-nav a svg{width:18px;height:18px;flex-shrink:0;opacity:.7;}
+.sb-nav a:hover{background:rgba(255,255,255,.1);color:#fff;}
+.sb-nav a:hover svg{opacity:1;}
+.sb-nav a.active{background:rgba(201,151,45,.15);color:var(--gold);border:1px solid rgba(201,151,45,.25);}
+.sb-nav a.active svg{opacity:1;}
+.sb-section-label{font-size:.65rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.35);padding:14px 13px 6px;margin-top:6px;}
+.sb-bottom{padding:16px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:8px;}
+.sb-contact{background:rgba(255,255,255,.07);border-radius:var(--radius-sm);padding:14px;font-size:.8rem;color:rgba(220,232,255,.7);border:1px solid rgba(255,255,255,.1);}
+.sb-contact strong{color:var(--gold);display:block;margin-bottom:6px;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.sb-contact p{margin-bottom:4px;}
+.sb-hotline{color:var(--gold);font-weight:800;font-size:.95rem;margin-top:6px;}
+.btn-logout{width:100%;padding:9px;border-radius:999px;font-weight:700;font-size:.82rem;background:rgba(255,255,255,.08);color:rgba(220,232,255,.8);border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:all .2s;}
+.btn-logout:hover{background:rgba(255,255,255,.14);color:#fff;}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--white);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm);}
+.topbar-title{font-family:var(--font-display);font-size:1.3rem;color:var(--navy);margin-right:auto;}
+.topbar-title small{font-family:var(--font-body);font-size:.75rem;color:var(--muted);display:block;font-weight:500;}
+.tb-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;font-weight:700;font-size:.85rem;background:var(--grad-gold);color:var(--navy);box-shadow:var(--shadow-gold);border:0;transition:transform .18s,box-shadow .18s;cursor:pointer;}
+.tb-btn:hover{transform:translateY(-2px);}
+.tb-icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);transition:all .2s;cursor:pointer;}
+.tb-icon:hover{border-color:var(--navy);color:var(--navy);}
+.tb-icon svg{width:18px;height:18px;}
+
+/* CONTENT */
+.content{padding:28px 32px;flex:1;}
+.section-view{display:none;}
+.section-view.active{display:block;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);}
+.card-hover{transition:transform .22s,box-shadow .25s;}
+.card-hover:hover{transform:translateY(-4px);box-shadow:var(--shadow);}
+
+/* GRID */
+.grid{display:grid;gap:20px;}
+.g2{grid-template-columns:repeat(2,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+
+/* STAT CARDS */
+.stat-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;display:flex;align-items:flex-start;gap:16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:transform .2s,box-shadow .25s;}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+.stat-card::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad-gold);}
+.stat-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;}
+.stat-ic.navy{background:var(--info-bg);color:var(--navy);}
+.stat-ic.gold{background:var(--gold-light);color:var(--gold-2);}
+.stat-ic.green{background:var(--good-bg);color:var(--good);}
+.stat-ic.blue{background:#e0f0ff;color:var(--blue);}
+.stat-ic svg{width:22px;height:22px;}
+.stat-val{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--navy);line-height:1;}
+.stat-lbl{font-size:.8rem;color:var(--muted);font-weight:600;margin-top:4px;}
+.stat-sub{font-size:.75rem;color:var(--good);font-weight:600;margin-top:6px;}
+
+/* WELCOME BANNER */
+.welcome-banner{background:var(--grad-navy);border-radius:var(--radius);padding:28px 30px;display:flex;align-items:center;gap:24px;position:relative;overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow);}
+.welcome-banner::before{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(201,151,45,.18),transparent 70%);}
+.wb-text{flex:1;position:relative;z-index:1;}
+.wb-greeting{font-size:.78rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.wb-title{font-family:var(--font-display);font-size:1.7rem;color:#fff;line-height:1.2;}
+.wb-sub{color:rgba(220,232,255,.8);font-size:.9rem;margin-top:8px;}
+.wb-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.wb-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 13px;font-size:.78rem;font-weight:600;color:#dce8ff;}
+.wb-chip.gold{background:rgba(201,151,45,.2);border-color:rgba(201,151,45,.4);color:var(--gold);}
+.wb-visual{position:relative;z-index:1;}
+.wb-badge{background:rgba(255,255,255,.12);border:1px solid rgba(201,151,45,.4);border-radius:16px;padding:16px 20px;text-align:center;backdrop-filter:blur(10px);}
+.wb-badge .crown{font-size:2rem;display:block;margin-bottom:4px;}
+.wb-badge .pts{font-family:var(--font-display);font-size:1.8rem;color:var(--gold);line-height:1;}
+.wb-badge .pts-l{font-size:.72rem;color:rgba(220,232,255,.75);font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
+
+/* ORDER TRACKER */
+.order-track{display:flex;align-items:center;margin:20px 0 8px;}
+.ot-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.ot-step::before{content:"";position:absolute;top:19px;right:-50%;width:100%;height:2px;background:var(--line);z-index:0;}
+.ot-step:last-child::before{display:none;}
+.ot-dot{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:2px solid var(--line);position:relative;z-index:1;transition:all .3s;font-size:.8rem;}
+.ot-dot.done{background:var(--good);border-color:var(--good);color:#fff;}
+.ot-dot.active{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 0 0 4px rgba(11,47,104,.15);}
+.ot-label{font-size:.7rem;font-weight:700;color:var(--muted);margin-top:8px;text-align:center;max-width:70px;}
+.ot-step.done .ot-label,.ot-step.active .ot-label{color:var(--navy);}
+
+/* TANK */
+.tank{width:80px;height:130px;border-radius:12px 12px 16px 16px;border:2px solid var(--line-2);background:var(--surface-2);position:relative;overflow:hidden;box-shadow:inset 0 0 20px rgba(11,47,104,.06),var(--shadow-sm);flex-shrink:0;}
+.tank .lvl{position:absolute;left:0;right:0;bottom:0;background:var(--grad-aqua);transition:height 1.6s cubic-bezier(.4,0,.2,1);}
+.tank .lvl::before{content:"";position:absolute;top:-10px;left:-50%;width:200%;height:20px;border-radius:45%;background:rgba(255,255,255,.2);animation:wave 6s linear infinite;}
+@keyframes wave{from{transform:translateX(0) rotate(0)}to{transform:translateX(25%) rotate(360deg)}}
+.tank .tank-pct{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--navy);mix-blend-mode:luminosity;}
+
+/* PROGRESS BAR */
+.pbar{height:8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;}
+.pbar>i{display:block;height:100%;border-radius:999px;background:var(--grad-aqua);transition:width 1.4s cubic-bezier(.4,0,.2,1);}
+
+/* PRODUCTS */
+.prod-opt{border:2px solid var(--line);border-radius:var(--radius-sm);padding:16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:8px;background:var(--white);}
+.prod-opt:hover{border-color:var(--navy);box-shadow:var(--shadow-sm);}
+.prod-opt.sel{border-color:var(--gold);background:linear-gradient(135deg,#fffaf0,#fff8e6);}
+.prod-dot{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin-bottom:4px;font-size:1.2rem;}
+.prod-name{font-weight:800;font-size:.9rem;color:var(--navy);}
+.prod-desc{font-size:.75rem;color:var(--muted);}
+.prod-price{font-family:var(--font-display);font-weight:700;color:var(--gold-2);font-size:1.1rem;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.7rem;padding:4px 10px;border-radius:999px;}
+.b-good{color:var(--good);background:var(--good-bg);}
+.b-warn{color:var(--warn);background:var(--warn-bg);}
+.b-navy{color:var(--navy);background:var(--info-bg);}
+.b-gold{color:var(--gold-2);background:var(--gold-light);}
+.b-active{color:var(--blue);background:#e0efff;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border-radius:999px;font-weight:700;font-size:.88rem;background:var(--white);color:var(--navy);border:1.5px solid var(--line-2);box-shadow:var(--shadow-sm);transition:all .2s;cursor:pointer;white-space:nowrap;}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.btn svg{width:16px;height:16px;}
+.btn-navy{background:var(--grad-navy);color:#fff;border:0;box-shadow:var(--shadow);}
+.btn-gold{background:var(--grad-gold);color:var(--navy);border:0;box-shadow:var(--shadow-gold);}
+.btn-sm{padding:8px 15px;font-size:.8rem;}
+.btn-block{width:100%;justify-content:center;}
+
+/* FORM */
+.qty-ctrl{display:inline-flex;align-items:center;border:1.5px solid var(--line-2);border-radius:999px;overflow:hidden;background:var(--white);}
+.qty-ctrl button{width:36px;height:36px;display:grid;place-items:center;font-size:1.2rem;font-weight:700;color:var(--navy);transition:background .15s;}
+.qty-ctrl button:hover{background:var(--info-bg);}
+.qty-ctrl input{width:44px;text-align:center;border:0;font-weight:800;font-size:1rem;color:var(--navy);background:transparent;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.field label{font-weight:700;font-size:.82rem;color:var(--navy);}
+.input{width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--line-2);background:var(--white);color:var(--text);font-family:var(--font-body);font-size:.9rem;transition:border-color .2s,box-shadow .2s;}
+.input:focus{outline:0;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,47,104,.1);}
+select.input{appearance:none;cursor:pointer;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:left;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:2px solid var(--line);}
+tbody td{padding:14px;font-size:.88rem;border-bottom:1px solid var(--line);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:0;}
+tbody tr:hover{background:var(--off-white);}
+.order-id{font-weight:700;color:var(--navy);font-size:.82rem;}
+
+/* REWARDS */
+.reward-item{display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--white);transition:all .2s;}
+.reward-item:hover{border-color:var(--gold);box-shadow:var(--shadow-sm);}
+.reward-item.locked{opacity:.55;}
+.r-ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;flex-shrink:0;background:var(--gold-light);color:var(--gold-2);font-size:1.3rem;}
+.reward-item.unlocked .r-ic{background:var(--grad-gold);color:var(--navy);}
+
+/* SUBSCRIPTION */
+.sub-card{background:var(--grad-navy);border-radius:var(--radius);padding:22px 24px;color:#fff;position:relative;overflow:hidden;}
+.sub-card::before{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(201,151,45,.12);}
+.sub-plan{font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.sub-title{font-family:var(--font-display);font-size:1.4rem;color:#fff;margin-bottom:4px;}
+.sub-desc{color:rgba(220,232,255,.8);font-size:.83rem;}
+.sub-feat{display:flex;align-items:center;gap:8px;font-size:.83rem;color:rgba(220,232,255,.9);}
+.sub-feat svg{width:15px;height:15px;color:var(--gold);flex-shrink:0;}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;}
+.toast{background:var(--white);border:1px solid var(--line);box-shadow:var(--shadow-lg);border-radius:14px;padding:13px 18px;display:flex;align-items:center;gap:12px;font-weight:600;font-size:.9rem;transform:translateY(20px);opacity:0;pointer-events:none;transition:all .35s;max-width:90vw;white-space:nowrap;}
+.toast.show{transform:none;opacity:1;pointer-events:auto;}
+.toast .t-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--gold-light);color:var(--gold-2);flex-shrink:0;}
+.toast .t-ic.good{background:var(--good-bg);color:var(--good);}
+.toast .t-ic.bad{background:var(--bad-bg);color:var(--bad);}
+
+/* LOADING */
+.spinner{width:18px;height:18px;border:2.5px solid rgba(11,47,104,.15);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skeleton{background:linear-gradient(90deg,var(--line) 25%,var(--surface-2) 50%,var(--line) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-state .ei{font-size:2.5rem;margin-bottom:10px;}
+
+/* MISC */
+.divider{height:1px;background:var(--line);margin:16px 0;}
+.flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}.gap-2{gap:8px;}.gap-3{gap:14px;}.gap-4{gap:20px;}.wrap-x{flex-wrap:wrap;}
+.muted{color:var(--muted);}.mt-1{margin-top:4px;}.mt-2{margin-top:8px;}.mt-3{margin-top:14px;}.mt-4{margin-top:20px;}.mt-5{margin-top:28px;}
+.txt-navy{color:var(--navy);}.txt-gold{color:var(--gold-2);}.fw7{font-weight:700;}.fw8{font-weight:800;}.fs-sm{font-size:.85rem;}.fs-xs{font-size:.76rem;}
+.sec-header{margin-bottom:20px;}.sec-header h2{font-size:1.4rem;color:var(--navy);}.sec-header p{color:var(--muted);font-size:.9rem;margin-top:4px;}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-2);background:var(--gold-light);padding:5px 11px;border-radius:999px;margin-bottom:8px;}
+.footer-bar{border-top:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--muted);background:var(--white);}
+.footer-bar strong{color:var(--navy);}
+
+@media(max-width:1024px){.layout{grid-template-columns:220px 1fr}.content{padding:20px}}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.g3,.g2{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}.welcome-banner{flex-direction:column}.wb-visual{display:none}}
+@media(max-width:480px){.g4{grid-template-columns:1fr}.content{padding:16px}.topbar{padding:10px 16px}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo-row">
+      <div class="sb-logo" style="background:#fff;overflow:hidden;">
+        <img src="logo.jpg" alt="Clean Queen" style="width:100%;height:100%;object-fit:contain;border-radius:50%;"/>
+      </div>
+      <div><div class="sb-name">Clean Queen <small>Water Refilling Station</small></div></div>
+    </div>
+  </div>
+
+  <div class="sb-user">
+    <div class="sb-avatar" id="sidebarAvatar">…</div>
+    <div>
+      <div class="sb-uname" id="sidebarName">Loading…</div>
+      <div class="sb-ustatus" id="sidebarStatus">👑 Member</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-section-label">Main</div>
+    <a class="active" onclick="showSection('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a onclick="showSection('order',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Order Water
+    </a>
+    <a onclick="showSection('tracking',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Track Delivery
+    </a>
+    <a onclick="showSection('history',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Order History
+    </a>
+    <div class="sb-section-label">Account</div>
+    <a onclick="showSection('rewards',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.3 9 8.5"/></svg>
+      Rewards
+    </a>
+    <a onclick="showSection('profile',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      My Profile
+    </a>
+    <div class="sb-section-label">Info</div>
+    <a href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Back to Website
+    </a>
+  </nav>
+
+  <div class="sb-bottom">
+    <div class="sb-contact">
+      <strong>Need Help?</strong>
+      <p>8378 Mayapis St., San Antonio Village, Makati City</p>
+      <p class="sb-hotline">0921-660-6969</p>
+      <p class="sb-hotline" style="font-size:.82rem">8896-0701</p>
+    </div>
+    <button class="btn-logout" onclick="signOut()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">
+      <span id="pageTitle">My Dashboard</span>
+      <small id="pageSubtitle">A Higher Standard of Clean</small>
+    </div>
+    <button class="tb-icon" title="Notifications" id="notifBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    </button>
+    <button class="tb-btn" onclick="showSection('order',null)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Order Water
+    </button>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="content section-view active" id="sec-dashboard">
+    <div class="welcome-banner">
+      <div class="wb-text">
+        <div class="wb-greeting" id="wbGreeting">Good day!</div>
+        <div class="wb-title" id="wbTitle">Welcome back to<br>Clean Queen</div>
+        <div class="wb-sub" id="wbSub">Your home stays hydrated with Clean Queen.</div>
+        <div class="wb-chips">
+          <span class="wb-chip gold" id="wbTier">👑 Member</span>
+          <span class="wb-chip" id="wbPoints">— reward points</span>
+          <span class="wb-chip" id="wbSince">Member since —</span>
+        </div>
+      </div>
+      <div class="wb-visual">
+        <div class="wb-badge">
+          <span class="crown">👑</span>
+          <div class="pts" id="wbPts">—</div>
+          <div class="pts-l">Royal Points</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g4">
+      <div class="stat-card">
+        <div class="stat-ic navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2s7 7 7 12a7 7 0 01-14 0c0-5 7-12 7-12z"/></svg></div>
+        <div><div class="stat-val" id="statOrders">—</div><div class="stat-lbl">Total Orders</div><div class="stat-sub" id="statOrdersSub"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.3 9 8.5"/></svg></div>
+        <div><div class="stat-val" id="statPoints">—</div><div class="stat-lbl">Reward Points</div><div class="stat-sub" id="statPointsSub"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg></div>
+        <div><div class="stat-val" id="statSpent">—</div><div class="stat-lbl">Total Spent</div><div class="stat-sub">Clean water for home</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div><div class="stat-val">28 min</div><div class="stat-lbl">Avg. Delivery</div><div class="stat-sub">Faster than average</div></div>
+      </div>
+    </div>
+
+    <div class="grid g2 mt-4" style="align-items:start">
+      <!-- Active order -->
+      <div class="card" id="activeOrderCard">
+        <div class="flex items-center justify-between">
+          <h3 style="font-size:1rem;color:var(--navy)">Active Delivery</h3>
+          <span class="badge b-navy" id="activeOrderBadge">—</span>
+        </div>
+        <div class="muted fs-sm mt-1" id="activeOrderSub">Loading…</div>
+        <div id="activeOrderTracker"></div>
+      </div>
+
+      <!-- Recent orders quick -->
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <h3 style="font-size:1rem;color:var(--navy)">Recent Orders</h3>
+          <button class="btn btn-sm" onclick="showSection('history',null)">View all →</button>
+        </div>
+        <div id="recentOrdersList" class="mt-3">
+          <div class="empty-state" style="padding:20px"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /dashboard -->
+
+  <!-- ===== ORDER ===== -->
+  <div class="content section-view" id="sec-order">
+    <div class="sec-header">
+      <span class="eyebrow">Quick Order</span>
+      <h2>Order Water</h2>
+      <p>Choose your water type, quantity, and preferred delivery time.</p>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <div class="card">
+          <h3 style="font-size:1rem;color:var(--navy)">1. Choose Water Type</h3>
+          <div class="grid g2 mt-3" style="gap:12px" id="productGrid">
+            <div class="empty-state" style="padding:16px;grid-column:span 2"><div class="spinner"></div></div>
+          </div>
+          <div class="divider"></div>
+          <h3 style="font-size:1rem;color:var(--navy)">2. Quantity</h3>
+          <div class="flex items-center gap-3 mt-3">
+            <div class="qty-ctrl">
+              <button onclick="adjQty(-1)">−</button>
+              <input type="number" id="qty" value="1" min="1" max="60" readonly/>
+              <button onclick="adjQty(1)">+</button>
+            </div>
+            <span class="muted fs-sm">containers / bags</span>
+          </div>
+          <div id="minNote" class="mt-3" style="display:none;padding:11px 14px;border-radius:12px;font-size:.82rem;font-weight:600"></div>
+          <div class="divider"></div>
+          <h3 style="font-size:1rem;color:var(--navy)">3. Delivery Details</h3>
+          <div class="mt-3">
+            <div class="field">
+              <label>Delivery Area</label>
+              <select class="input" id="orderBarangay" onchange="onZoneChange()">
+                <option value="">Select your barangay…</option>
+                <optgroup label="Makati — no minimum order">
+                  <option value="San Antonio Village">San Antonio Village</option>
+                </optgroup>
+                <optgroup label="Makati — minimum 10 × 5-gallon">
+                  <option>Salcedo Village</option><option>Legaspi Village</option><option>Bel-Air</option>
+                  <option>Ayala CBD</option><option>San Lorenzo</option><option>Urdaneta</option>
+                  <option>Dasmariñas</option><option>Forbes Park</option><option>Magallanes</option>
+                  <option>Poblacion</option><option>Olympia</option><option>La Paz</option>
+                  <option>Valenzuela</option><option>Singkamas</option><option>Carmona</option>
+                  <option>Tejeros</option><option>San Isidro</option><option>Pio del Pilar</option>
+                  <option>Kasilawan</option><option>Sta. Cruz</option><option>Palanan</option>
+                  <option>Bangkal</option><option>Guadalupe Viejo</option><option>Guadalupe Nuevo</option>
+                  <option>Pinagkaisahan</option>
+                </optgroup>
+                <optgroup label="Manila — minimum 10 × 5-gallon">
+                  <option>Malate</option><option>Ermita</option><option>Paco</option>
+                  <option>Sta. Ana</option><option>San Andres Bukid</option><option>Pandacan</option>
+                  <option>Intramuros</option><option>Manila City Hall area</option>
+                </optgroup>
+                <optgroup label="Pasay — minimum 10 × 5-gallon">
+                  <option>PICC / CCP Complex</option><option>Pasay Rotonda</option><option>MOA area</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="field">
+              <label>Full Address</label>
+              <input class="input" type="text" id="orderAddress" placeholder="Unit / house no., street"/>
+            </div>
+            <div class="grid g2" style="gap:12px">
+              <div class="field">
+                <label>Date</label>
+                <input class="input" type="date" id="orderDate"/>
+                <span class="fs-xs muted" id="cutoffNote"></span>
+              </div>
+              <div class="field">
+                <label>Time Window</label>
+                <select class="input" id="orderTime">
+                  <option>8 AM – 10 AM</option>
+                  <option selected>2 PM – 4 PM</option>
+                  <option>4 PM – 6 PM</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Special Instructions (optional)</label>
+              <textarea class="input" id="orderNotes" style="resize:vertical;min-height:70px" placeholder="e.g. Leave at gate, call on arrival…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Summary -->
+      <div>
+        <div class="card" style="position:sticky;top:80px">
+          <h3 style="font-size:1rem;color:var(--navy)">Order Summary</h3>
+          <div class="divider"></div>
+          <div class="flex justify-between fs-sm mt-2"><span class="muted" id="sumProd">Select a product</span><span class="fw7" id="sumPrice">₱0</span></div>
+          <div class="flex justify-between fs-sm mt-2"><span class="muted">Delivery fee</span><span class="fw7 txt-gold">FREE</span></div>
+          <div class="divider"></div>
+          <div class="flex justify-between fw8" style="font-size:1.1rem"><span>Total</span><span class="txt-navy" id="sumTotal">₱0</span></div>
+          <button class="btn btn-gold btn-block mt-4" id="btnPlaceOrder" onclick="placeOrder()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16"><path d="M5 13l4 4L19 7"/></svg>
+            Place Order
+          </button>
+          <p class="muted fs-xs mt-3" style="text-align:center">Pay on delivery · Cash or GCash<br/>Order before 6 PM for same-day delivery</p>
+          <div class="divider"></div>
+          <div class="flex gap-2 items-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" stroke-width="2" stroke-linecap="round" width="18"><polygon points="12 2 15 8.5 22 9.3 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.3 9 8.5"/></svg>
+            <span class="fs-xs muted">You'll earn <strong style="color:var(--gold-2)" id="ptsEarn">— points</strong> for this order.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /order -->
+
+  <!-- ===== TRACKING ===== -->
+  <div class="content section-view" id="sec-tracking">
+    <div class="sec-header">
+      <span class="eyebrow">Live Tracking</span>
+      <h2>Track Your Delivery</h2>
+    </div>
+    <div id="trackingContent">
+      <div class="empty-state"><div class="ei">🛵</div><p>No active delivery right now.<br><button class="btn btn-gold btn-sm mt-3" onclick="showSection('order',null)">Place an order →</button></p></div>
+    </div>
+  </div>
+
+  <!-- ===== HISTORY ===== -->
+  <div class="content section-view" id="sec-history">
+    <div class="sec-header">
+      <span class="eyebrow">All Orders</span>
+      <h2>Order History</h2>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Order</th><th>Product</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="historyBody">
+            <tr><td colspan="5" style="text-align:center;padding:28px"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REWARDS ===== -->
+  <div class="content section-view" id="sec-rewards">
+    <div class="sec-header">
+      <span class="eyebrow">Suki Perks</span>
+      <h2>Your Suki Points</h2>
+      <p>A thank-you for every order — we keep track so we can look after our regulars.</p>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <div class="card" style="background:var(--grad-navy);border:0;color:#fff">
+          <div style="font-size:.7rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--gold)">Your Balance</div>
+          <div style="font-family:var(--font-display);font-size:3rem;color:#fff;line-height:1;margin-top:6px"><span id="rewardPts">—</span> <span style="font-size:1.2rem;color:var(--gold)">pts</span></div>
+          <div style="color:rgba(220,232,255,.75);font-size:.85rem;margin-top:6px" id="rewardNextMsg">Earned across all your delivered orders</div>
+        </div>
+        <div class="card mt-4">
+          <h3 style="font-size:1rem;color:var(--navy)">How Points Work</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px">
+            <div class="flex gap-3 items-center"><div style="width:36px;height:36px;background:var(--gold-light);border-radius:10px;display:grid;place-items:center;font-size:1rem;flex-shrink:0">💧</div><div><div class="fw7 fs-sm txt-navy">Every peso you spend</div><div class="fs-xs muted">1 point per ₱1, added once your order is delivered</div></div></div>
+            <div class="flex gap-3 items-center"><div style="width:36px;height:36px;background:var(--gold-light);border-radius:10px;display:grid;place-items:center;font-size:1rem;flex-shrink:0">📦</div><div><div class="fw7 fs-sm txt-navy">Bigger and repeat orders</div><div class="fs-xs muted">Offices and regular suki build up fastest</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3 style="font-size:1rem;color:var(--navy)">Looking After Our Suki</h3>
+          <p class="fs-sm muted mt-2">We take care of our regulars — free gallons for building guards and staff, and special arrangements for long-time offices and households.</p>
+          <div class="divider"></div>
+          <p class="fs-sm muted">Points are our way of tracking who our most loyal customers are. Message or call us and we'll sort you out.</p>
+          <a class="btn btn-gold btn-block mt-3" href="tel:+639216606969">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>
+            Call 0921-660-6969
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PROFILE ===== -->
+  <div class="content section-view" id="sec-profile">
+    <div class="sec-header">
+      <span class="eyebrow">Account</span>
+      <h2>My Profile</h2>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <div class="flex gap-3 items-center">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--navy);font-size:1.8rem;flex-shrink:0" id="profileAvatar">?</div>
+          <div>
+            <div class="fw8 txt-navy" style="font-size:1.1rem" id="profileName">—</div>
+            <div class="muted fs-sm" id="profileContact">—</div>
+            <span class="badge b-gold mt-1" id="profileTier">—</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="field"><label>Full Name</label><input class="input" type="text" id="editName" placeholder="Your name"/></div>
+        <div class="field"><label>Phone</label><input class="input" type="tel" id="editPhone" placeholder="+63 9XX XXX XXXX"/></div>
+        <div class="field"><label>Primary Address</label><input class="input" type="text" id="editAddress" placeholder="Street, Barangay, City"/></div>
+        <button class="btn btn-navy" onclick="saveProfile()">Save Changes</button>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1rem;color:var(--navy)">Account Info</h3>
+        <div class="divider"></div>
+        <div class="flex justify-between fs-sm mt-2"><span class="muted">Member since</span><span class="fw7" id="memberSince">—</span></div>
+        <div class="flex justify-between fs-sm mt-2"><span class="muted">Loyalty tier</span><span class="fw7 txt-gold" id="profileTierInfo">—</span></div>
+        <div class="flex justify-between fs-sm mt-2"><span class="muted">Total orders</span><span class="fw7" id="profileOrderCount">—</span></div>
+        <div class="flex justify-between fs-sm mt-2"><span class="muted">Reward points</span><span class="fw7 txt-gold" id="profilePointsInfo">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <div>© 2026 <strong>Clean Queen Water Refilling Station</strong> · A Higher Standard of Clean</div>
+    <div>8378 Mayapis St., Makati · <strong>0921-660-6969</strong></div>
+  </div>
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://qtciwkgkuxqrxnqkfnvt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0Y2l3a2drdXhxcnhucWtmbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTY1NTcsImV4cCI6MjA5NzA5MjU1N30.HtoA-yjP9Jux34GrX0rFU6GShJOP3hDnpKTASIG75to';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ---- STATE ----
+let customer = null;
+let products = [];
+let selectedProduct = null;
+let orders = [];
+
+// ---- AUTH GUARD (email-lookup, no OTP) ----
+(async () => {
+  try {
+    const stored = localStorage.getItem('cq_customer');
+    if (!stored) { window.location.href = 'login.html'; return; }
+    customer = JSON.parse(stored);
+    if (!customer?.id) { window.location.href = 'login.html'; return; }
+  } catch(e) { window.location.href = 'login.html'; return; }
+  await loadAll(customer.id);
+})();
+
+async function signOut() {
+  localStorage.removeItem('cq_customer');
+  window.location.href = 'login.html';
+}
+
+// ---- LOAD ALL DATA ----
+async function loadAll(userId) {
+  refreshSidebar();
+  await Promise.all([loadProducts(), loadOrders(userId)]);
+  renderDashboard();
+  renderRewards();
+  renderProfile();
+}
+
+function refreshSidebar() {
+  if (!customer) return;
+  const initial = (customer.name||'?').charAt(0).toUpperCase();
+  document.getElementById('sidebarAvatar').textContent = initial;
+  document.getElementById('sidebarName').textContent   = customer.name || '—';
+  document.getElementById('sidebarStatus').textContent = `👑 ${customer.tier||'Member'} · ${customer.loyalty_points||0} pts`;
+}
+
+async function loadProducts() {
+  const { data } = await db.rpc('cq_get_products');
+  products = data || [];
+  renderProductGrid();
+}
+
+async function loadOrders(userId) {
+  const id = userId || customer?.id;
+  if (!id) return;
+  const { data } = await db.rpc('cq_get_orders', { p_customer_id: id });
+  orders = data || [];
+}
+
+// ---- DASHBOARD RENDER ----
+function renderDashboard() {
+  if (!customer) return;
+  const name = customer.name?.split(' ')[0] || 'there';
+  const hr   = new Date().getHours();
+  const greet = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('wbGreeting').textContent = `${greet}, ${name}!`;
+  document.getElementById('wbTitle').innerHTML     = `Welcome back to<br>Clean Queen`;
+  document.getElementById('wbTier').textContent    = `👑 ${customer.tier||'Member'}`;
+  document.getElementById('wbPoints').textContent  = `${customer.loyalty_points||0} reward points`;
+  document.getElementById('wbSince').textContent   = `Member since ${new Date(customer.created_at).toLocaleDateString('en-PH',{month:'short',year:'numeric'})}`;
+  document.getElementById('wbPts').textContent     = customer.loyalty_points||0;
+
+  // Stats
+  document.getElementById('statOrders').textContent  = orders.length;
+  document.getElementById('statPoints').textContent  = customer.loyalty_points||0;
+  const next = Math.max(0, 1000 - (customer.loyalty_points||0));
+  document.getElementById('statPointsSub').textContent = next > 0 ? `${next} to next reward` : '🎉 Reward available!';
+  const total = orders.filter(o=>o.status==='delivered').reduce((s,o)=>s+Number(o.total_amount),0);
+  document.getElementById('statSpent').textContent  = '₱' + total.toLocaleString();
+
+  // Active order
+  const active = orders.find(o => !['delivered','cancelled'].includes(o.status));
+  renderActiveOrder(active);
+
+  // Recent orders
+  renderRecentOrders(orders.slice(0,4));
+
+  // Same-day delivery if ordered before the 6 PM cut-off, otherwise next day.
+  // Also block past dates — the field had no lower bound.
+  const dateEl = document.getElementById('orderDate');
+  const local  = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const now    = new Date();
+  const soonest = new Date();
+  if (now.getHours() >= 18) soonest.setDate(soonest.getDate()+1);
+  dateEl.min   = local(soonest);
+  dateEl.value = local(soonest);
+  document.getElementById('cutoffNote').textContent = now.getHours() >= 18
+    ? 'Past the 6 PM cut-off — earliest delivery is tomorrow.'
+    : 'Order before 6 PM today for same-day delivery.';
+  if (customer.address) document.getElementById('orderAddress').value = customer.address;
+}
+
+const STATUS_LABELS = { pending:'Pending', confirmed:'Confirmed', preparing:'Preparing', out_for_delivery:'On the Way', delivered:'Delivered', cancelled:'Cancelled' };
+const STATUS_BADGE  = { pending:'b-warn', confirmed:'b-navy', preparing:'b-navy', out_for_delivery:'b-active', delivered:'b-good', cancelled:'b-warn' };
+
+function renderActiveOrder(order) {
+  const card   = document.getElementById('activeOrderCard');
+  const badge  = document.getElementById('activeOrderBadge');
+  const sub    = document.getElementById('activeOrderSub');
+  const tracker= document.getElementById('activeOrderTracker');
+
+  if (!order) {
+    badge.className = 'badge b-navy'; badge.textContent = 'No active order';
+    sub.textContent = 'Place an order to get started.';
+    tracker.innerHTML = `<button class="btn btn-gold btn-sm mt-3" onclick="showSection('order',null)">Order Water →</button>`;
+    return;
+  }
+
+  badge.className = 'badge ' + (STATUS_BADGE[order.status]||'b-navy');
+  badge.textContent = STATUS_LABELS[order.status]||order.status;
+  const items = (order.items||[]).map(i=>`${i.product?.emoji||'💧'} ${i.product?.name||i.product_name} ×${i.quantity}`).join(', ');
+  sub.textContent = `Order #${order.id.slice(-6).toUpperCase()} · ${items}`;
+
+  const steps = ['confirmed','preparing','out_for_delivery','delivered'];
+  const ci = steps.indexOf(order.status === 'pending' ? 'confirmed' : order.status);
+  const labels = ['Confirmed','Preparing','On the Way','Delivered'];
+
+  tracker.innerHTML = `<div class="order-track mt-3">` +
+    steps.map((s,i) => {
+      const done   = i < ci;
+      const active = i === ci;
+      const icons  = ['✓','⚙️','🛵','🏠'];
+      const cls    = done ? 'done' : active ? 'active' : '';
+      const connector = i < steps.length - 1
+        ? `</div><div style="flex:1;height:2px;margin-top:19px;background:${done?'var(--good)':'var(--line)'}"></div>`
+        : '</div>';
+      return `<div class="ot-step ${done?'done':active?'active':''}"><div class="ot-dot ${cls}">${done?'✓':icons[i]}</div><div class="ot-label">${labels[i]}</div>${connector}`;
+    }).join('') +
+  `</div>` +
+  (order.rider_name ? `<div class="card mt-3" style="background:var(--off-white);border-color:var(--line);padding:14px"><div class="flex items-center gap-3"><div style="width:36px;height:36px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-size:1rem;flex-shrink:0">🛵</div><div><div class="fw7 fs-sm txt-navy">${order.rider_name} is on the way</div><div class="fs-xs muted">ETA: ${order.delivery_window} · ${order.delivery_address}</div></div></div></div>` : '');
+}
+
+function renderRecentOrders(list) {
+  const el = document.getElementById('recentOrdersList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state" style="padding:20px"><div class="ei">📭</div><p class="fs-sm">No orders yet. Place your first order!</p></div>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse">`+
+    `<thead><tr>${['Order','Product','Amount','Date','Status'].map(h=>`<th style="text-align:left;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)">${h}</th>`).join('')}</tr></thead>`+
+    `<tbody>${list.map(o => {
+      const items = (o.items||[]).map(i=>`${i.product?.emoji||'💧'} ${i.product?.name||'Water'}`).join(', ')||'—';
+      return `<tr><td style="padding:12px 10px;border-bottom:1px solid var(--line)"><span class="order-id">#${o.id.slice(-6).toUpperCase()}</span></td><td style="padding:12px 10px;border-bottom:1px solid var(--line);font-size:.85rem">${items}</td><td style="padding:12px 10px;border-bottom:1px solid var(--line);font-weight:700;color:var(--navy)">₱${Number(o.total_amount).toLocaleString()}</td><td style="padding:12px 10px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--muted)">${new Date(o.created_at).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</td><td style="padding:12px 10px;border-bottom:1px solid var(--line)"><span class="badge ${STATUS_BADGE[o.status]||'b-navy'}">${STATUS_LABELS[o.status]||o.status}</span></td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+// ---- ORDER HISTORY ----
+function renderHistory() {
+  const body = document.getElementById('historyBody');
+  if (!orders.length) { body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted)">No orders yet.</td></tr>'; return; }
+  body.innerHTML = orders.map(o => {
+    const items = (o.items||[]).map(i=>`${i.product?.emoji||'💧'} ${i.product?.name||'Water'} ×${i.quantity}`).join(', ')||'—';
+    return `<tr><td><span class="order-id">#${o.id.slice(-6).toUpperCase()}</span></td><td class="fs-sm">${items}</td><td class="fw7 txt-navy">₱${Number(o.total_amount).toLocaleString()}</td><td class="muted fs-sm">${new Date(o.created_at).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})}</td><td><span class="badge ${STATUS_BADGE[o.status]||'b-navy'}">${STATUS_LABELS[o.status]||o.status}</span></td></tr>`;
+  }).join('');
+}
+
+// ---- PRODUCTS ----
+function renderProductGrid() {
+  const grid = document.getElementById('productGrid');
+  if (!products.length) { grid.innerHTML = '<p class="muted fs-sm">No products available.</p>'; return; }
+  grid.innerHTML = products.map((p,i) => `
+    <div class="prod-opt${i===0?' sel':''}" onclick="selectProduct(this,'${p.id}')">
+      <div class="prod-dot" style="background:${prodBg(p.type)}">${p.emoji||'💧'}</div>
+      <div class="prod-name">${p.name}</div>
+      <div class="prod-desc">${p.description||p.unit}</div>
+      <div class="prod-price">₱${p.price}</div>
+    </div>`).join('');
+  // auto-select first
+  if (products.length) selectProduct(grid.querySelector('.prod-opt'), products[0].id);
+}
+
+function prodBg(type) {
+  return {purified:'#e8f0ff',alkaline:'#e6fbef',mineral:'#fff4e0',ice:'#e0f4ff',pet:'#f0f5ff'}[type]||'#f0f5ff';
+}
+
+function selectProduct(el, productId) {
+  document.querySelectorAll('.prod-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedProduct = products.find(p => p.id === productId);
+  onZoneChange();   // switching to a bulk-only product bumps qty to its minimum
+}
+
+// ---- DELIVERY ZONES & MINIMUM ORDER ----
+// San Antonio Village is our home turf: no minimum. Everywhere else needs 10 x 5-gallon
+// so the two-vehicle fleet stays viable. PET is bulk-only everywhere.
+const FIVE_GAL_TYPES = ['purified','alkaline','mineral'];
+const BULK_MIN = 10;
+
+function selectedBarangay() {
+  return document.getElementById('orderBarangay').value || '';
+}
+function zoneOf(brgy) {
+  return brgy.toLowerCase().startsWith('san antonio') ? 'sav' : 'metro';
+}
+function minQtyFor(product, brgy) {
+  if (!product) return 1;
+  if (product.type === 'pet') return BULK_MIN;
+  if (brgy && zoneOf(brgy) === 'metro' && FIVE_GAL_TYPES.includes(product.type)) return BULK_MIN;
+  return 1;
+}
+
+function onZoneChange() {
+  const min = minQtyFor(selectedProduct, selectedBarangay());
+  const inp = document.getElementById('qty');
+  if (parseInt(inp.value) < min) inp.value = min;   // bump up rather than blocking the customer
+  updateOrderSummary();
+}
+
+function adjQty(d) {
+  const inp = document.getElementById('qty');
+  let v = (parseInt(inp.value)||1) + d;
+  if (v < 1) v = 1;
+  if (v > 60) v = 60;                                // one Bajaj trip = 60 bottles
+  inp.value = v;
+  updateOrderSummary();
+}
+
+function updateOrderSummary() {
+  if (!selectedProduct) return;
+  const qty   = parseInt(document.getElementById('qty').value)||1;
+  const total = selectedProduct.price * qty;
+  const pts   = Math.floor(total);
+  document.getElementById('sumProd').textContent  = `${selectedProduct.name} × ${qty}`;
+  document.getElementById('sumPrice').textContent = `₱${total.toLocaleString()}`;
+  document.getElementById('sumTotal').textContent = `₱${total.toLocaleString()}`;
+  document.getElementById('ptsEarn').textContent  = `${pts} points`;
+
+  const brgy = selectedBarangay();
+  const min  = minQtyFor(selectedProduct, brgy);
+  const note = document.getElementById('minNote');
+  const btn  = document.getElementById('btnPlaceOrder');
+  const short = qty < min;
+
+  if (!brgy) {
+    note.style.display = 'block';
+    note.style.background = 'var(--info-bg)'; note.style.color = 'var(--navy)';
+    note.textContent = '📍 Choose your delivery area below to see if a minimum applies.';
+  } else if (short) {
+    note.style.display = 'block';
+    note.style.background = 'var(--warn-bg)'; note.style.color = 'var(--warn)';
+    note.textContent = selectedProduct.type === 'pet'
+      ? `PET bottles are bulk only — please order at least ${min} bottles.`
+      : `${brgy} has a ${min}-bottle minimum. Add ${min - qty} more to continue.`;
+  } else if (selectedProduct.type === 'pet') {
+    note.style.display = 'block';
+    note.style.background = 'var(--good-bg)'; note.style.color = 'var(--good)';
+    note.textContent = `✓ Bulk minimum met (${min} bottles) — free delivery.`;
+  } else if (zoneOf(brgy) === 'sav') {
+    note.style.display = 'block';
+    note.style.background = 'var(--good-bg)'; note.style.color = 'var(--good)';
+    note.textContent = '👑 San Antonio Village — no minimum order, free delivery.';
+  } else {
+    note.style.display = 'block';
+    note.style.background = 'var(--good-bg)'; note.style.color = 'var(--good)';
+    note.textContent = `✓ Minimum met for ${brgy} — free delivery.`;
+  }
+
+  btn.disabled = short || !brgy;
+  btn.style.opacity = btn.disabled ? .5 : 1;
+}
+
+// ---- PLACE ORDER ----
+async function placeOrder() {
+  if (!selectedProduct) return toast('Please select a water type.','⚠️');
+  const address = document.getElementById('orderAddress').value.trim();
+  const date    = document.getElementById('orderDate').value;
+  const time    = document.getElementById('orderTime').value;
+  const notes   = document.getElementById('orderNotes').value.trim();
+  const brgy    = selectedBarangay();
+  if (!brgy)    return toast('Please choose your delivery area.','📍');
+  if (!address) return toast('Please enter your delivery address.','📍');
+  if (!date)    return toast('Please select a delivery date.','📅');
+
+  const qty   = parseInt(document.getElementById('qty').value)||1;
+  const min   = minQtyFor(selectedProduct, brgy);
+  if (qty < min) return toast(`Minimum ${min} for this order — please add more.`,'⚠️');
+  const total = selectedProduct.price * qty;
+  const pts   = Math.floor(total);
+
+  const btn = document.getElementById('btnPlaceOrder');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Placing order…';
+
+  const { data: order, error: orderErr } = await db.rpc('cq_place_order', {
+    p_customer_id:      customer.id,
+    p_delivery_address: address,
+    p_delivery_date:    date,
+    p_delivery_window:  time,
+    p_special_notes:    notes || '',
+    p_total_amount:     total,
+    p_points_earned:    pts,
+    p_product_id:       selectedProduct.id,
+    p_product_name:     selectedProduct.name,
+    p_quantity:         qty,
+    p_unit_price:       selectedProduct.price,
+    p_barangay:         brgy
+  });
+
+  if (orderErr) {
+    btn.disabled = false; btn.textContent = 'Place Order';
+    return toast('Error placing order: ' + orderErr.message,'❌');
+  }
+
+  btn.disabled = false; btn.textContent = 'Place Order';
+  toast('Order placed! We\'ll confirm shortly. 💧','✅');
+  await loadOrders(customer.id);
+  renderDashboard();
+  setTimeout(() => showSection('tracking', null), 1400);
+}
+
+// ---- REWARDS ----
+function renderRewards() {
+  if (!customer) return;
+  const pts = customer.loyalty_points||0;
+  document.getElementById('rewardPts').textContent     = pts;
+  document.getElementById('rewardNextMsg').textContent = pts > 0
+    ? 'Earned across all your delivered orders'
+    : 'Place your first order to start earning';
+}
+
+// ---- TRACKING ----
+function renderTracking() {
+  const active = orders.find(o => !['delivered','cancelled'].includes(o.status));
+  const el = document.getElementById('trackingContent');
+  if (!active) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">🛵</div><p>No active delivery right now.<br><button class="btn btn-gold btn-sm mt-3" onclick="showSection(\'order\',null)">Place an order →</button></p></div>';
+    return;
+  }
+  const items = (active.items||[]).map(i=>`${i.product?.emoji||'💧'} ${i.product?.name||'Water'} ×${i.quantity}`).join(', ')||'—';
+  const statusSteps = [
+    { key:'pending',          label:'Order Confirmed',  icon:'✓',  done: true },
+    { key:'preparing',        label:'Being Prepared',   icon:'⚙️', done: ['preparing','out_for_delivery','delivered'].includes(active.status) },
+    { key:'out_for_delivery', label:'Out for Delivery', icon:'🛵', done: ['out_for_delivery','delivered'].includes(active.status), current: active.status==='out_for_delivery' },
+    { key:'delivered',        label:'Delivered',        icon:'🏠', done: active.status==='delivered' }
+  ];
+  el.innerHTML = `
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <h3 style="font-size:1rem;color:var(--navy)">Order #${active.id.slice(-6).toUpperCase()}</h3>
+        <div class="muted fs-sm mt-1">${items}</div>
+        <div class="divider"></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          ${statusSteps.map((s,i) => `
+            <div class="flex gap-3 items-center">
+              <div style="width:36px;height:36px;border-radius:50%;background:${s.done?'var(--good)':i===statusSteps.findIndex(x=>!x.done)?'var(--navy)':'var(--surface-2)'};border:2px solid ${s.done?'var(--good)':i===statusSteps.findIndex(x=>!x.done)?'var(--navy)':'var(--line)'};display:grid;place-items:center;color:${s.done||i===statusSteps.findIndex(x=>!x.done)?'#fff':'var(--muted)'};flex-shrink:0;font-size:.85rem">${s.done?'✓':s.icon}</div>
+              <div><div class="fw7 fs-sm ${s.done?'txt-navy':''}">${s.label}</div><div class="fs-xs muted">${s.done?'Completed':'Waiting…'}</div></div>
+            </div>
+            ${i<statusSteps.length-1?`<div style="width:2px;height:16px;background:${s.done?'var(--good)':'var(--line)'};margin-left:17px"></div>`:''}
+          `).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="fw7 txt-navy">Order Details</div>
+          <div class="divider"></div>
+          <div class="fs-sm mt-1"><span class="fw7 txt-navy">Address:</span> ${active.delivery_address}</div>
+          <div class="fs-sm mt-2"><span class="fw7 txt-navy">Delivery:</span> ${active.delivery_date} · ${active.delivery_window}</div>
+          ${active.rider_name?`<div class="fs-sm mt-2"><span class="fw7 txt-navy">Rider:</span> ${active.rider_name}</div>`:''}
+          ${active.special_notes?`<div class="fs-sm mt-2"><span class="fw7 txt-navy">Notes:</span> ${active.special_notes}</div>`:''}
+          <div class="divider"></div>
+          <div class="flex justify-between fw8"><span>Total</span><span class="txt-navy">₱${Number(active.total_amount).toLocaleString()}</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---- PROFILE ----
+function renderProfile() {
+  if (!customer) return;
+  const initial = (customer.name||'?').charAt(0).toUpperCase();
+  document.getElementById('profileAvatar').textContent   = initial;
+  document.getElementById('profileName').textContent     = customer.name||'—';
+  document.getElementById('profileContact').textContent  = customer.phone||customer.email||'—';
+  document.getElementById('profileTier').textContent     = `👑 ${customer.tier||'Standard'}`;
+  document.getElementById('editName').value    = customer.name||'';
+  document.getElementById('editPhone').value   = customer.phone||'';
+  document.getElementById('editAddress').value = customer.address||'';
+  document.getElementById('memberSince').textContent    = new Date(customer.created_at).toLocaleDateString('en-PH',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('profileTierInfo').textContent= customer.tier||'Standard';
+  document.getElementById('profileOrderCount').textContent= orders.length;
+  document.getElementById('profilePointsInfo').textContent= `${customer.loyalty_points||0} pts`;
+}
+
+async function saveProfile() {
+  const name    = document.getElementById('editName').value.trim();
+  const phone   = document.getElementById('editPhone').value.trim();
+  const address = document.getElementById('editAddress').value.trim();
+  if (!name) return toast('Name is required.','⚠️');
+
+  const { data: updated, error } = await db.rpc('cq_update_customer', {
+    p_customer_id: customer.id,
+    p_name:        name,
+    p_phone:       phone   || null,
+    p_address:     address || null
+  });
+  if (error) return toast('Error saving: ' + error.message,'❌');
+  customer = { ...customer, ...(updated || { name, phone, address }) };
+  localStorage.setItem('cq_customer', JSON.stringify(customer));
+  refreshSidebar();
+  renderProfile();
+  toast('Profile updated!','✅');
+}
+
+// ---- NAVIGATION ----
+const PAGE_TITLES = {
+  dashboard:{ title:'My Dashboard', sub:'A Higher Standard of Clean' },
+  order:    { title:'Order Water',  sub:'Purified · Alkaline · Mineral · Ice' },
+  tracking: { title:'Track Delivery', sub:'Live order status' },
+  history:  { title:'Order History', sub:'All your orders' },
+  rewards:  { title:'Suki Points', sub:`${(customer?.loyalty_points||0)} pts` },
+  profile:  { title:'My Profile',   sub:'Manage your account' },
+};
+
+function showSection(id, linkEl) {
+  document.querySelectorAll('.section-view').forEach(el => el.style.display = 'none');
+  const el = document.getElementById('sec-' + id);
+  if (el) el.style.display = '';
+  document.querySelectorAll('.sb-nav a').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+  const p = PAGE_TITLES[id]||{};
+  document.getElementById('pageTitle').textContent    = p.title||'';
+  document.getElementById('pageSubtitle').textContent = p.sub||'';
+  if (id === 'history')  renderHistory();
+  if (id === 'tracking') renderTracking();
+  if (id === 'rewards')  renderRewards();
+  if (id === 'profile')  renderProfile();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Make section views flex by default
+document.querySelectorAll('.section-view').forEach(el => { if (!el.classList.contains('active')) el.style.display = 'none'; });
+
+// ---- TOAST ----
+function toast(msg, icon='💧') {
+  const wrap = document.getElementById('toastWrap');
+  const el   = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<div class="t-ic good">${icon}</div><span>${msg}</span>`;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3500);
+}
+
+// Auto-refresh orders every 60s to show latest delivery status
+setInterval(async () => {
+  if (!customer?.id) return;
+  await loadOrders(customer.id);
+  renderDashboard();
+}, 60000);
+</script>
+</body>
+</html>
