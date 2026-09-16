@@ -270,35 +270,45 @@ tbody tr:hover{background:var(--off-white);}
       </div>
     </div>
     <nav class="sb-nav">
-      <div class="sb-section">Operations</div>
-      <a class="active" onclick="showSection('neworder',this)">
+      <div class="sb-section" data-roles="rider">Deliveries</div>
+      <a onclick="showSection('mydeliveries',this)" data-roles="rider">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        My Deliveries <span id="sbMyDeliveryCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(201,151,45,.2);color:var(--gold);border:none;display:none"></span>
+      </a>
+      <div class="sb-section" data-roles="admin,clerk">Operations</div>
+      <a class="active" onclick="showSection('neworder',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New Order
       </a>
-      <a onclick="showSection('orders',this)">
+      <a onclick="showSection('orders',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Orders <span id="sbPendingCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(201,151,45,.2);color:var(--gold);border:none;display:none"></span>
       </a>
-      <a onclick="showSection('customers',this)">
+      <a onclick="showSection('customers',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Customers
       </a>
-      <a onclick="showSection('inventory',this)">
+      <a onclick="showSection('inventory',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
         Inventory <span id="sbLowStockCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(220,38,38,.15);color:var(--bad);border:none;display:none"></span>
       </a>
-      <a onclick="showSection('dcs',this)">
+      <a onclick="showSection('dcs',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
         Daily Control Sheet
       </a>
-      <div class="sb-section">Manager</div>
-      <a onclick="showSection('closing',this)">
+      <div class="sb-section" data-roles="admin,clerk">Manager</div>
+      <a onclick="showSection('closing',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Daily Closing
       </a>
-      <a onclick="showSection('reports',this)">
+      <a onclick="showSection('reports',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Shop Reports
+      </a>
+      <div class="sb-section" data-roles="admin">Administration</div>
+      <a onclick="showSection('staff',this)" data-roles="admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Staff
       </a>
       <div class="sb-section">Account</div>
       <a href="index.html">
@@ -700,6 +710,29 @@ tbody tr:hover{background:var(--off-white);}
         </div><!-- /dcsHistoryView -->
       </div><!-- /dcs -->
 
+      <!-- MY DELIVERIES (rider role — self-scoped, enforced server-side too) -->
+      <div class="section-view" id="sec-mydeliveries">
+        <div class="card">
+          <div id="mdLoading" class="empty-state"><div class="spinner-inline"></div> Loading your deliveries…</div>
+          <div id="mdEmpty" class="empty-state" style="display:none"><div class="ei">🛵</div><p>No deliveries assigned to you right now.</p></div>
+          <div id="mdList" style="display:none;display:flex;flex-direction:column;gap:12px"></div>
+        </div>
+      </div><!-- /mydeliveries -->
+
+      <!-- STAFF (admin only) -->
+      <div class="section-view" id="sec-staff">
+        <div class="card" style="margin-bottom:16px;display:flex;justify-content:flex-end">
+          <button class="btn btn-gold" onclick="openAddStaffModal()">+ Add Staff</button>
+        </div>
+        <div class="card">
+          <div id="staffLoading" class="empty-state"><div class="spinner-inline"></div> Loading staff…</div>
+          <table id="staffTable" style="display:none">
+            <thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Status</th><th></th></tr></thead>
+            <tbody id="staffTableBody"></tbody>
+          </table>
+        </div>
+      </div><!-- /staff -->
+
       <!-- DAILY CLOSING -->
       <div class="section-view" id="sec-closing">
         <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -895,6 +928,37 @@ tbody tr:hover{background:var(--off-white);}
   </div>
 </div>
 
+<!-- ADD STAFF MODAL -->
+<div class="modal" id="staffModal">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;color:var(--navy)">👤 Add Staff</h3>
+      <div class="modal-close" onclick="closeAddStaffModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body">
+      <label class="fs-sm fw7 txt-navy">Full Name</label>
+      <input class="input" type="text" id="stfName" style="margin-top:6px;margin-bottom:12px"/>
+      <label class="fs-sm fw7 txt-navy">Email (their login)</label>
+      <input class="input" type="email" id="stfEmail" style="margin-top:6px;margin-bottom:12px"/>
+      <label class="fs-sm fw7 txt-navy">Temporary Password</label>
+      <input class="input" type="text" id="stfPassword" style="margin-top:6px;margin-bottom:4px" placeholder="At least 8 characters"/>
+      <p class="fs-xs muted" style="margin-bottom:12px">Share this with them directly — have them change it after first login.</p>
+      <label class="fs-sm fw7 txt-navy">Role</label>
+      <select class="input" id="stfRole" style="margin-top:6px;margin-bottom:12px">
+        <option value="clerk">Clerk — day-to-day operations</option>
+        <option value="rider">Rider — deliveries only</option>
+        <option value="admin">Admin — full access</option>
+      </select>
+      <label class="fs-sm fw7 txt-navy">Phone (optional)</label>
+      <input class="input" type="text" id="stfPhone" style="margin-top:6px;margin-bottom:6px"/>
+      <div id="staffModalMsg" class="msg error" style="display:none;margin-top:8px;margin-bottom:8px"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px" id="stfSaveBtn" onclick="confirmAddStaff()">Create Account</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const SUPABASE_URL = 'https://qtciwkgkuxqrxnqkfnvt.supabase.co';
@@ -937,9 +1001,24 @@ async function initDashboard(staff) {
   document.getElementById('staffRole').textContent = staff.role;
   document.getElementById('staffAvatar').textContent = staff.name.charAt(0).toUpperCase();
 
+  applyRoleVisibility(staff.role);
+
   // Ask for desktop notification permission so alerts show even in another tab.
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
+  }
+
+  if (staff.role === 'rider') {
+    // Riders get their own narrow, self-scoped view — every ops/financial
+    // RPC below now rejects riders server-side, so don't even call them.
+    document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+    document.getElementById('sec-mydeliveries').classList.add('active');
+    document.getElementById('pageTitle').textContent = 'My Deliveries';
+    document.getElementById('pageSubtitle').textContent = 'Orders assigned to you';
+    await loadMyDeliveries();
+    if (window._cqPoll) clearInterval(window._cqPoll);
+    window._cqPoll = setInterval(loadMyDeliveries, 15000);
+    return;
   }
 
   await loadOrders();
@@ -951,6 +1030,17 @@ async function initDashboard(staff) {
   // New orders that appear between polls trigger the delivery alert.
   if (window._cqPoll) clearInterval(window._cqPoll);
   window._cqPoll = setInterval(loadOrders, 15000);
+}
+
+// Hide nav items the current role has no business seeing. This is UX
+// polish ONLY — the real protection is every RPC checking the role itself
+// server-side (cq_require_ops_staff / cq_require_admin), so a hidden link
+// being reached some other way still can't do anything.
+function applyRoleVisibility(role) {
+  document.querySelectorAll('[data-roles]').forEach(el => {
+    const allowed = el.dataset.roles.split(',');
+    el.style.display = allowed.includes(role) ? '' : 'none';
+  });
 }
 
 async function signOut() {
@@ -981,7 +1071,9 @@ function showSection(id, linkEl) {
     inventory: ['Inventory','Stock levels, restocks & adjustments'],
     dcs: ['Daily Control Sheet','Meter, sales, cash & purified reconciliation'],
     closing: ['Daily Closing','Meter readings, sales & credit for the day'],
-    reports: ['Shop Reports','Download sales, gallons & AR history']
+    reports: ['Shop Reports','Download sales, gallons & AR history'],
+    mydeliveries: ['My Deliveries','Orders assigned to you'],
+    staff: ['Staff','Manage staff accounts & roles']
   };
   const [title, sub] = titles[id] || ['',''];
   document.getElementById('pageTitle').textContent = title;
@@ -991,6 +1083,8 @@ function showSection(id, linkEl) {
   if (id === 'customers') loadCustomers();
   if (id === 'inventory') loadInventory();
   if (id === 'dcs') initDailyControl();
+  if (id === 'mydeliveries') loadMyDeliveries();
+  if (id === 'staff') loadStaffList();
   if (id === 'closing') initClosingDay();
   if (id === 'reports') initReportsDates();
 }
@@ -2363,6 +2457,125 @@ async function confirmAddExpense() {
 
   closeExpenseModal();
   await loadDailyControl();
+}
+
+// ==============================================================
+// MY DELIVERIES — rider's own self-scoped view. cq_get_my_deliveries()
+// only ever returns orders assigned to the caller; cq_advance_order_status
+// double-checks server-side that a rider can only touch their own order.
+// ==============================================================
+async function loadMyDeliveries() {
+  document.getElementById('mdLoading').style.display = 'block';
+  document.getElementById('mdList').style.display = 'none';
+  document.getElementById('mdEmpty').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_my_deliveries');
+  document.getElementById('mdLoading').style.display = 'none';
+  if (error) { console.error(error); return; }
+
+  const rows = data || [];
+  const badge = document.getElementById('sbMyDeliveryCount');
+  if (rows.length) { badge.textContent = rows.length; badge.style.display = 'inline-flex'; } else badge.style.display = 'none';
+
+  if (!rows.length) { document.getElementById('mdEmpty').style.display = 'block'; return; }
+  document.getElementById('mdList').style.display = 'flex';
+
+  const NEXT = { out_for_delivery: 'delivered' };
+  const NEXT_LABEL = { out_for_delivery: '✅ Mark Delivered' };
+  document.getElementById('mdList').innerHTML = rows.map(o => {
+    const items = (o.items||[]).map(i => `${i.product_name} ×${i.quantity}`).join(', ') || '—';
+    const next = NEXT[o.status];
+    return `<div class="card" style="padding:16px">
+      <div class="flex justify-between items-center" style="margin-bottom:8px">
+        <span class="fw8 txt-navy">#${o.id.slice(-6).toUpperCase()}</span>
+        <span class="badge ${STATUS_BADGE[o.status]||''}">${STATUS_LABELS[o.status]||o.status}</span>
+      </div>
+      <div class="fs-sm fw7">${o.customer?.name || '—'}</div>
+      <div class="fs-xs muted">${o.customer?.phone || ''}</div>
+      <div class="fs-sm" style="margin-top:8px">${o.order_type === 'pickup' ? '🏪 Pickup' : '🛵 ' + (o.delivery_address||'—')}</div>
+      <div class="fs-xs muted" style="margin-top:2px">${items}</div>
+      <div class="fw8 txt-navy" style="margin-top:6px">₱${Number(o.total_amount).toLocaleString()}</div>
+      ${o.special_notes ? `<div class="fs-xs" style="margin-top:6px;color:var(--warn)">📝 ${o.special_notes}</div>` : ''}
+      ${next ? `<button class="btn btn-gold" style="width:100%;margin-top:12px" onclick="mdAdvance('${o.id}','${next}')">${NEXT_LABEL[o.status]}</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function mdAdvance(orderId, newStatus) {
+  const { error } = await db.rpc('cq_advance_order_status', { p_order_id: orderId, p_status: newStatus });
+  if (error) return alert('Error: ' + error.message);
+  await loadMyDeliveries();
+}
+
+// ==============================================================
+// STAFF MANAGEMENT (admin only). Account creation calls the create-staff
+// edge function, which holds the service-role key server-side — the
+// browser never sees it.
+// ==============================================================
+async function loadStaffList() {
+  document.getElementById('staffLoading').style.display = 'block';
+  document.getElementById('staffTable').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_all_staff');
+  document.getElementById('staffLoading').style.display = 'none';
+  if (error) return alert('Error: ' + error.message);
+
+  const ROLE_LABEL = { admin: '👑 Admin', clerk: '🧑‍💼 Clerk', rider: '🛵 Rider' };
+  document.getElementById('staffTableBody').innerHTML = (data||[]).map(s => `
+    <tr>
+      <td class="fw7 txt-navy">${s.name}${s.id === currentStaff.id ? ' <span class="fs-xs muted">(you)</span>' : ''}</td>
+      <td class="fs-sm">${ROLE_LABEL[s.role]||s.role}</td>
+      <td class="fs-sm muted">${s.phone||'—'}</td>
+      <td>${s.is_active ? '<span class="badge" style="background:var(--good-bg);color:var(--good)">Active</span>' : '<span class="badge" style="background:var(--bad-bg);color:var(--bad)">Deactivated</span>'}</td>
+      <td>${s.id === currentStaff.id ? '' : `<button class="btn btn-sm" onclick="toggleStaffActive('${s.id}', ${!s.is_active})">${s.is_active ? 'Deactivate' : 'Reactivate'}</button>`}</td>
+    </tr>`).join('');
+  document.getElementById('staffTable').style.display = 'table';
+}
+
+async function toggleStaffActive(staffId, makeActive) {
+  if (!makeActive && !confirm('Deactivate this staff member? They will be signed out and lose access immediately.')) return;
+  const { error } = await db.rpc('cq_set_staff_active', { p_staff_id: staffId, p_active: makeActive });
+  if (error) return alert('Error: ' + error.message);
+  await loadStaffList();
+}
+
+function openAddStaffModal() {
+  ['stfName','stfEmail','stfPassword','stfPhone'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('stfRole').value = 'clerk';
+  document.getElementById('staffModalMsg').style.display = 'none';
+  document.getElementById('staffModal').classList.add('open');
+}
+function closeAddStaffModal() { document.getElementById('staffModal').classList.remove('open'); }
+document.getElementById('staffModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddStaffModal(); });
+
+async function confirmAddStaff() {
+  const msg = document.getElementById('staffModalMsg');
+  const name = document.getElementById('stfName').value.trim();
+  const email = document.getElementById('stfEmail').value.trim();
+  const password = document.getElementById('stfPassword').value;
+  const role = document.getElementById('stfRole').value;
+  const phone = document.getElementById('stfPhone').value.trim();
+
+  if (!name || !email || !password) { msg.textContent = 'Name, email, and password are required.'; msg.style.display = 'block'; return; }
+  if (password.length < 8) { msg.textContent = 'Password must be at least 8 characters.'; msg.style.display = 'block'; return; }
+
+  const btn = document.getElementById('stfSaveBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Creating…';
+
+  const { data: { session } } = await db.auth.getSession();
+  const res = await fetch(SUPABASE_URL + '/functions/v1/create-staff', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+    body: JSON.stringify({ name, email, password, role, phone: phone || null })
+  });
+  const result = await res.json();
+  btn.disabled = false; btn.textContent = orig;
+
+  if (!res.ok) { msg.textContent = 'Error: ' + (result.error || 'Could not create account'); msg.style.display = 'block'; return; }
+
+  closeAddStaffModal();
+  await loadStaffList();
+  alert(`✅ Account created for ${name}.\n\nGive them these credentials:\nEmail: ${email}\nPassword: ${password}`);
 }
 </script>
 </body>
