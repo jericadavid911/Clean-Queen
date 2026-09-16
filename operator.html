@@ -354,6 +354,11 @@ tbody tr:hover{background:var(--off-white);}
                 <div id="noCustomerResults" style="margin-top:8px;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
                 <button class="btn btn-sm mt-3" onclick="toggleNewCustomerForm(true)">+ New Customer</button>
                 <div id="noNewCustomerForm" style="display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+                  <div class="flex gap-2" style="margin-bottom:10px">
+                    <button class="btn btn-sm active" id="ncTypeRetail" onclick="setNcType('retail')" style="flex:1">🏠 Retail</button>
+                    <button class="btn btn-sm" id="ncTypeCorporate" onclick="setNcType('corporate')" style="flex:1">🏢 Corporate</button>
+                  </div>
+                  <input class="input" type="text" id="ncCompanyName" placeholder="Company / Business name *" style="display:none;margin-bottom:10px"/>
                   <div class="grid g2" style="gap:10px">
                     <input class="input" type="text" id="ncName" placeholder="Full name *"/>
                     <input class="input" type="text" id="ncPhone" placeholder="Mobile number *"/>
@@ -1212,7 +1217,7 @@ async function loadCustomers() {
 
 function filterCustomers() {
   const q = document.getElementById('customerSearch').value.toLowerCase();
-  renderCustomers(allCustomers.filter(c => (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q)));
+  renderCustomers(allCustomers.filter(c => (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q) || (c.company_name||'').toLowerCase().includes(q)));
 }
 
 function renderCustomers(list) {
@@ -1220,19 +1225,22 @@ function renderCustomers(list) {
   if (!list.length) { el.style.display = 'none'; document.getElementById('customersEmpty').style.display = 'block'; return; }
   document.getElementById('customersEmpty').style.display = 'none';
   el.style.display = 'flex';
-  el.innerHTML = list.map(c => `
+  el.innerHTML = list.map(c => {
+    const isCorp = c.customer_type === 'corporate';
+    return `
     <div class="customer-row">
       <div class="c-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
       <div style="flex:1">
-        <div class="fw7 txt-navy">${c.name||'—'}</div>
-        <div class="fs-xs muted">${c.phone||c.email||'—'} · ${c.address||'No address'}</div>
+        <div class="fw7 txt-navy">${isCorp ? '🏢 ' : ''}${isCorp && c.company_name ? c.company_name : (c.name||'—')}</div>
+        <div class="fs-xs muted">${isCorp && c.company_name ? 'Contact: ' + (c.name||'—') + ' · ' : ''}${c.phone||c.email||'—'} · ${c.address||'No address'}</div>
       </div>
+      ${isCorp ? '<span class="badge" style="background:var(--blue-bg);color:var(--blue)">Corporate</span>' : ''}
       <span class="tier-chip tier-${c.tier||'Standard'}">${c.tier||'Standard'}</span>
       <div class="flex gap-2 items-center" style="margin-left:8px">
         <span class="fw7 txt-navy fs-sm">⭐ ${c.loyalty_points||0} pts</span>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ==============================================================
@@ -1656,7 +1664,7 @@ let noInitialized = false;
 async function initNewOrder() {
   if (!allCustomers.length) await loadCustomers();
   if (!noProducts.length) {
-    const { data } = await db.rpc('cq_get_products');
+    const { data } = await db.rpc('cq_get_products_staff');
     noProducts = (data || []).filter(p => p.is_active);
     renderNoProductGrid();
   }
@@ -1669,16 +1677,30 @@ async function initNewOrder() {
   renderCustomerPicker();
 }
 
+// Corporate customers use corporate_price where the product has one set;
+// otherwise everyone pays the normal retail price. This is a PREVIEW only —
+// cq_create_order re-derives the real price server-side from the customer's
+// actual type at submit time, so a stale client price can never overcharge
+// or undercharge.
+function noEffectivePrice(p) {
+  if (noSelectedCustomer?.customer_type === 'corporate' && p.corporate_price != null) return Number(p.corporate_price);
+  return Number(p.price);
+}
+
 function renderNoProductGrid() {
-  document.getElementById('noProductGrid').innerHTML = noProducts.map(p => `
+  document.getElementById('noProductGrid').innerHTML = noProducts.map(p => {
+    const price = noEffectivePrice(p);
+    const isCorpRate = price !== Number(p.price);
+    return `
     <div class="customer-row" style="cursor:pointer;padding:10px 12px" onclick="addToCart('${p.id}')">
       <div class="c-avatar" style="background:var(--surface-2);font-size:1.2rem">${p.emoji || '💧'}</div>
       <div style="flex:1">
         <div class="fw7 fs-sm txt-navy">${p.name}</div>
-        <div class="fs-xs muted">₱${Number(p.price).toLocaleString()} / ${p.unit}</div>
+        <div class="fs-xs muted">₱${price.toLocaleString()} / ${p.unit} ${isCorpRate ? '<span class="badge" style="background:var(--blue-bg);color:var(--blue);padding:1px 6px;font-size:.62rem">Corporate rate</span>' : ''}</div>
       </div>
       <button class="btn btn-sm btn-navy">+ Add</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function addToCart(productId) {
@@ -1686,7 +1708,18 @@ function addToCart(productId) {
   if (!p) return;
   const existing = noCart.find(c => c.product_id === productId);
   if (existing) existing.quantity += 1;
-  else noCart.push({ product_id: p.id, name: p.name, emoji: p.emoji, price: Number(p.price), type: p.type, quantity: 1 });
+  else noCart.push({ product_id: p.id, name: p.name, emoji: p.emoji, price: noEffectivePrice(p), type: p.type, quantity: 1 });
+  renderCart();
+}
+
+// Re-price the grid + any items already in the cart for the newly
+// selected customer's type (preview only — server re-derives at submit).
+function noRepriceForCustomer() {
+  renderNoProductGrid();
+  noCart.forEach(c => {
+    const p = noProducts.find(x => x.id === c.product_id);
+    if (p) c.price = noEffectivePrice(p);
+  });
   renderCart();
 }
 
@@ -1733,12 +1766,12 @@ function renderCustomerPicker() {
   const results = document.getElementById('noCustomerResults');
   if (!q) { results.innerHTML = ''; return; }
   const matches = allCustomers.filter(c =>
-    (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)
+    (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.company_name || '').toLowerCase().includes(q)
   ).slice(0, 8);
   results.innerHTML = matches.map(c => `
     <div class="customer-row" style="cursor:pointer;padding:9px 12px" onclick='selectCustomer(${JSON.stringify(c)})'>
       <div class="c-avatar" style="width:32px;height:32px;font-size:.85rem">${(c.name||'?').charAt(0).toUpperCase()}</div>
-      <div style="flex:1"><div class="fw7 fs-sm txt-navy">${c.name||'—'}</div><div class="fs-xs muted">${c.phone||c.email||''}</div></div>
+      <div style="flex:1"><div class="fw7 fs-sm txt-navy">${c.customer_type === 'corporate' ? '🏢 ' : ''}${c.customer_type === 'corporate' && c.company_name ? c.company_name : (c.name||'—')}</div><div class="fs-xs muted">${c.phone||c.email||''}</div></div>
     </div>`).join('') || '<p class="fs-xs muted" style="padding:8px">No matches. Try "+ New Customer" below.</p>';
 }
 
@@ -1748,19 +1781,33 @@ function selectCustomer(c) {
   document.getElementById('noCustomerResults').innerHTML = '';
   document.getElementById('noCustomerSelected').style.display = 'none';
   document.getElementById('noCustomerSelectedCard').style.display = 'block';
-  document.getElementById('noSelCustName').textContent = c.name || '—';
+  const isCorp = c.customer_type === 'corporate';
+  document.getElementById('noSelCustName').textContent = (isCorp && c.company_name ? c.company_name + ' — ' : '') + (c.name || '—') + (isCorp ? ' 🏢' : '');
   document.getElementById('noSelCustContact').textContent = [c.phone, c.email].filter(Boolean).join(' · ') || '—';
   if (c.address && noOrderType === 'delivery') document.getElementById('noAddress').value = c.address;
+  if (noProducts.length) noRepriceForCustomer();
 }
 
 function clearSelectedCustomer() {
   noSelectedCustomer = null;
   document.getElementById('noCustomerSelected').style.display = 'block';
   document.getElementById('noCustomerSelectedCard').style.display = 'none';
+  if (noProducts.length) noRepriceForCustomer();
 }
+
+let ncType = 'retail';
 
 function toggleNewCustomerForm(show) {
   document.getElementById('noNewCustomerForm').style.display = show ? 'block' : 'none';
+  if (show) setNcType('retail'); // fresh form always starts Retail
+}
+
+function setNcType(type) {
+  ncType = type;
+  document.getElementById('ncTypeRetail').classList.toggle('active', type === 'retail');
+  document.getElementById('ncTypeCorporate').classList.toggle('active', type === 'corporate');
+  document.getElementById('ncCompanyName').style.display = type === 'corporate' ? 'block' : 'none';
+  document.getElementById('ncName').placeholder = type === 'corporate' ? 'Contact person *' : 'Full name *';
 }
 
 async function createAndSelectCustomer() {
@@ -1768,16 +1815,19 @@ async function createAndSelectCustomer() {
   const phone = document.getElementById('ncPhone').value.trim();
   const email = document.getElementById('ncEmail').value.trim();
   const address = document.getElementById('ncAddress').value.trim();
-  if (!name || !phone) return alert('Name and mobile number are required.');
+  const companyName = document.getElementById('ncCompanyName').value.trim();
+  if (!name || !phone) return alert(ncType === 'corporate' ? 'Contact person and mobile number are required.' : 'Name and mobile number are required.');
+  if (ncType === 'corporate' && !companyName) return alert('Company / Business name is required for a Corporate account.');
 
   const { data, error } = await db.rpc('cq_create_customer', {
     p_email: email || null,
-    p_name: name, p_phone: phone, p_address: address || null
+    p_name: name, p_phone: phone, p_address: address || null,
+    p_customer_type: ncType, p_company_name: ncType === 'corporate' ? companyName : null
   });
   if (error) return alert('Error: ' + error.message);
 
   allCustomers.push(data);
-  ['ncName','ncPhone','ncEmail','ncAddress'].forEach(id => document.getElementById(id).value = '');
+  ['ncName','ncPhone','ncEmail','ncAddress','ncCompanyName'].forEach(id => document.getElementById(id).value = '');
   toggleNewCustomerForm(false);
   selectCustomer(data);
 }
