@@ -155,6 +155,7 @@ thead th{text-align:left;font-size:.7rem;font-weight:800;letter-spacing:.1em;tex
 tbody td{padding:13px 12px;font-size:.86rem;border-bottom:1px solid var(--line);vertical-align:middle;}
 tbody tr:last-child td{border-bottom:0;}
 tbody tr:hover{background:var(--off-white);}
+.num{text-align:right;font-variant-numeric:tabular-nums;}
 .order-id{font-weight:700;color:var(--navy);font-size:.8rem;}
 .customer-info .cname{font-weight:700;font-size:.88rem;}
 .customer-info .cphone{font-size:.75rem;color:var(--muted);}
@@ -304,6 +305,10 @@ tbody tr:hover{background:var(--off-white);}
       <a onclick="showSection('reports',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Shop Reports
+      </a>
+      <a onclick="showSection('salesreport',this)" data-roles="admin,clerk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg>
+        Sales Report
       </a>
       <div class="sb-section" data-roles="admin">Administration</div>
       <a onclick="showSection('staff',this)" data-roles="admin">
@@ -824,6 +829,40 @@ tbody tr:hover{background:var(--off-white);}
         </div>
       </div><!-- /reports -->
 
+      <!-- SALES REPORT (itemized, groupable, exportable to Excel) -->
+      <div class="section-view" id="sec-salesreport">
+        <div class="card" style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <label class="fw7 fs-sm txt-navy">From:</label>
+          <input class="input" type="date" id="srFrom" style="max-width:170px"/>
+          <label class="fw7 fs-sm txt-navy">To:</label>
+          <input class="input" type="date" id="srTo" style="max-width:170px"/>
+          <button class="btn btn-navy" onclick="loadSalesReport()">Load Report</button>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-sm" id="srViewOrder" onclick="setSalesReportView('order')">By Order</button>
+            <button class="btn btn-sm" id="srViewProduct" onclick="setSalesReportView('product')">By Product</button>
+            <button class="btn btn-gold" onclick="downloadSalesReportExcel()">⬇️ Download Excel</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;text-align:center;padding:24px">
+          <div class="fs-xs muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Sales (selected range)</div>
+          <div class="fw8" id="srGrandTotal" style="font-size:2.2rem;color:var(--navy);font-family:var(--font-display)">₱0.00</div>
+          <div class="fs-xs muted" id="srMeta" style="margin-top:4px">Pick a date range and click "Load Report."</div>
+        </div>
+
+        <div class="card">
+          <div id="srLoading" class="empty-state" style="display:none"><div class="spinner-inline"></div> Loading…</div>
+          <div id="srEmpty" class="empty-state"><div class="ei">📊</div><p>No data loaded yet.</p></div>
+          <div id="srTableWrap" style="display:none;overflow-x:auto">
+            <table id="srTable">
+              <thead id="srTableHead"></thead>
+              <tbody id="srTableBody"></tbody>
+              <tfoot id="srTableFoot" style="font-weight:800"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div><!-- /salesreport -->
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
@@ -978,6 +1017,7 @@ tbody tr:hover{background:var(--off-white);}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://qtciwkgkuxqrxnqkfnvt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0Y2l3a2drdXhxcnhucWtmbnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTY1NTcsImV4cCI6MjA5NzA5MjU1N30.HtoA-yjP9Jux34GrX0rFU6GShJOP3hDnpKTASIG75to';
@@ -1090,6 +1130,7 @@ function showSection(id, linkEl) {
     dcs: ['Daily Control Sheet','Meter, sales, cash & purified reconciliation'],
     closing: ['Daily Closing','Meter readings, sales & credit for the day'],
     reports: ['Shop Reports','Download sales, gallons & AR history'],
+    salesreport: ['Sales Report','Itemized sales, groupable by order or product'],
     mydeliveries: ['My Deliveries','Orders assigned to you'],
     staff: ['Staff','Manage staff accounts & roles']
   };
@@ -1105,6 +1146,7 @@ function showSection(id, linkEl) {
   if (id === 'staff') loadStaffList();
   if (id === 'closing') initClosingDay();
   if (id === 'reports') initReportsDates();
+  if (id === 'salesreport') initSalesReportDates();
 }
 
 // ---- ORDERS ----
@@ -1339,6 +1381,7 @@ function renderCustomers(list) {
   el.style.display = 'flex';
   el.innerHTML = list.map(c => {
     const isCorp = c.customer_type === 'corporate';
+    const getsCorpPricing = c.gets_corporate_pricing !== false;
     return `
     <div class="customer-row">
       <div class="c-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
@@ -1351,9 +1394,22 @@ function renderCustomers(list) {
       <div class="flex gap-2 items-center" style="margin-left:8px">
         <span class="fw7 txt-navy fs-sm">⭐ ${c.loyalty_points||0} pts</span>
       </div>
-      ${isCorp && currentStaff?.role === 'admin' ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openCustomerPricing(${JSON.stringify(c)})'>💰 Special Pricing</button>` : ''}
+      ${isCorp && currentStaff?.role === 'admin' ? `
+        <label class="flex items-center gap-1 fs-xs muted" style="margin-left:8px;cursor:pointer;white-space:nowrap">
+          <input type="checkbox" ${getsCorpPricing ? 'checked' : ''} onchange="toggleCorporatePricing('${c.id}', this.checked)"/>
+          Gets corporate pricing
+        </label>
+      ` : ''}
+      ${currentStaff?.role === 'admin' ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openCustomerPricing(${JSON.stringify(c)})'>💰 Special Pricing</button>` : ''}
     </div>`;
   }).join('');
+}
+
+async function toggleCorporatePricing(customerId, enabled) {
+  const { error } = await db.rpc('cq_set_customer_corporate_pricing', { p_customer_id: customerId, p_enabled: enabled });
+  if (error) { alert('Error: ' + error.message); return; }
+  const c = allCustomers.find(x => x.id === customerId);
+  if (c) c.gets_corporate_pricing = enabled;
 }
 
 // ---- Customer special pricing (admin-only negotiated rates) ----
@@ -1375,17 +1431,21 @@ async function openCustomerPricing(c) {
   (overrides || []).forEach(o => { overrideMap[o.product_id] = o.price; });
 
   document.getElementById('pricingModalList').innerHTML = (products || []).filter(p => p.is_active).map(p => {
-    const standardPrice = (c.customer_type === 'corporate' && p.corporate_price != null) ? Number(p.corporate_price) : Number(p.price);
+    const standardPrice = (c.customer_type === 'corporate' && c.gets_corporate_pricing !== false && p.corporate_price != null) ? Number(p.corporate_price) : Number(p.price);
     const override = overrideMap[p.id];
+    const hasOverride = override != null;
     return `
     <div class="flex items-center gap-2" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
       <div style="flex:1">
         <div class="fw7 fs-sm txt-navy">${p.emoji || ''} ${p.name}</div>
         <div class="fs-xs muted">Standard rate: ₱${standardPrice.toLocaleString()} / ${p.unit}</div>
       </div>
-      <input class="input" type="number" min="0" step="0.01" id="pricingOverride_${p.id}" value="${override != null ? override : ''}" placeholder="₱" style="width:90px"/>
+      <label class="flex items-center gap-1 fs-xs muted" style="cursor:pointer;white-space:nowrap">
+        <input type="checkbox" id="pricingToggle_${p.id}" ${hasOverride ? 'checked' : ''} onchange="togglePricingOverride('${p.id}')"/>
+        Special Pricing
+      </label>
+      <input class="input" type="number" min="0" step="0.01" id="pricingOverride_${p.id}" value="${hasOverride ? override : ''}" placeholder="₱" style="width:80px" ${hasOverride ? '' : 'disabled'}/>
       <button class="btn btn-sm btn-navy" onclick="saveCustomerPriceOverride('${p.id}')">Save</button>
-      ${override != null ? `<button class="btn btn-sm" onclick="removeCustomerPriceOverride('${p.id}')">✕</button>` : ''}
     </div>`;
   }).join('');
   document.getElementById('pricingModalLoading').style.display = 'none';
@@ -1397,22 +1457,33 @@ function closeCustomerPricingModal() {
   pricingModalCustomer = null;
 }
 
-async function saveCustomerPriceOverride(productId) {
+function togglePricingOverride(productId) {
+  const checkbox = document.getElementById('pricingToggle_' + productId);
   const input = document.getElementById('pricingOverride_' + productId);
-  const value = input.value.trim();
-  const msg = document.getElementById('pricingModalMsg');
-  msg.style.display = 'none';
-  if (value === '') return;
-  const price = Number(value);
-  if (isNaN(price) || price < 0) { msg.textContent = 'Enter a valid price.'; msg.style.display = 'block'; return; }
-  const { error } = await db.rpc('cq_set_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId, p_price: price });
-  if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
-  openCustomerPricing(pricingModalCustomer);
+  input.disabled = !checkbox.checked;
+  if (checkbox.checked) { input.focus(); } else { input.value = ''; }
 }
 
-async function removeCustomerPriceOverride(productId) {
-  const { error } = await db.rpc('cq_remove_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId });
+async function saveCustomerPriceOverride(productId) {
+  const checkbox = document.getElementById('pricingToggle_' + productId);
+  const input = document.getElementById('pricingOverride_' + productId);
   const msg = document.getElementById('pricingModalMsg');
+  msg.style.display = 'none';
+
+  if (!checkbox.checked) {
+    const { error } = await db.rpc('cq_remove_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId });
+    if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+    return openCustomerPricing(pricingModalCustomer);
+  }
+
+  const value = input.value.trim();
+  const price = Number(value);
+  if (value === '' || isNaN(price) || price < 0) {
+    msg.textContent = 'Enter a valid price for Special Pricing, or untick the box to use the standard rate.';
+    msg.style.display = 'block';
+    return;
+  }
+  const { error } = await db.rpc('cq_set_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId, p_price: price });
   if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
   openCustomerPricing(pricingModalCustomer);
 }
@@ -1825,6 +1896,155 @@ function downloadCSV(filename, rows2D) {
 }
 
 // ==============================================================
+// SALES REPORT — itemized, groupable (by order or by product), and
+// exportable to a real .xlsx file. Replaces the old POS's flat,
+// un-groupable export: every row here comes from the canonical
+// products table (no duplicate/inconsistently-named SKUs), so
+// "by product" totals are trustworthy without manual reconciliation.
+// ==============================================================
+let srRows = [];
+let srView = 'order';
+
+function initSalesReportDates() {
+  const from = document.getElementById('srFrom');
+  const to = document.getElementById('srTo');
+  if (!to.value) to.value = todayStr();
+  if (!from.value) {
+    const d = new Date(); d.setDate(1);
+    from.value = d.toISOString().slice(0,10);
+  }
+  loadSalesReport();
+}
+
+async function loadSalesReport() {
+  const from = document.getElementById('srFrom').value;
+  const to = document.getElementById('srTo').value;
+  if (!from || !to) return alert('Please pick both dates.');
+
+  document.getElementById('srLoading').style.display = 'block';
+  document.getElementById('srTableWrap').style.display = 'none';
+  document.getElementById('srEmpty').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_sales_report', { p_from: from, p_to: to });
+  document.getElementById('srLoading').style.display = 'none';
+  if (error) { console.error(error); return alert('Error: ' + error.message); }
+
+  srRows = data || [];
+  document.getElementById('srMeta').textContent = `${from} to ${to} · ${srRows.length} line item${srRows.length===1?'':'s'}`;
+  renderSalesReport();
+}
+
+function setSalesReportView(view) {
+  srView = view;
+  renderSalesReport();
+}
+
+function renderSalesReport() {
+  document.getElementById('srViewOrder').classList.toggle('btn-navy', srView === 'order');
+  document.getElementById('srViewProduct').classList.toggle('btn-navy', srView === 'product');
+
+  const grandTotal = srRows.reduce((sum, r) => sum + Number(r.subtotal), 0);
+  document.getElementById('srGrandTotal').textContent = '₱' + grandTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  if (!srRows.length) {
+    document.getElementById('srEmpty').style.display = 'block';
+    document.getElementById('srTableWrap').style.display = 'none';
+    return;
+  }
+  document.getElementById('srEmpty').style.display = 'none';
+  document.getElementById('srTableWrap').style.display = 'block';
+
+  if (srView === 'order') renderSalesReportByOrder(grandTotal);
+  else renderSalesReportByProduct(grandTotal);
+}
+
+function renderSalesReportByOrder(grandTotal) {
+  const byOrder = new Map();
+  srRows.forEach(r => {
+    if (!byOrder.has(r.order_id)) {
+      byOrder.set(r.order_id, {
+        date: r.order_date,
+        customer: (r.customer_type === 'corporate' && r.company_name) ? r.company_name : r.customer_name,
+        order_type: r.order_type, status: r.status, payment_method: r.payment_method,
+        items: [], total: 0
+      });
+    }
+    const o = byOrder.get(r.order_id);
+    o.items.push(`${r.product_name} ×${r.quantity}`);
+    o.total += Number(r.subtotal);
+  });
+
+  document.getElementById('srTableHead').innerHTML = '<tr><th>Date</th><th>Customer</th><th>Type</th><th>Items</th><th>Status</th><th class="num">Order Total</th></tr>';
+  document.getElementById('srTableBody').innerHTML = [...byOrder.values()].map(o => `
+    <tr>
+      <td class="fs-sm">${o.date}</td>
+      <td class="fs-sm fw7 txt-navy">${o.customer || '—'}</td>
+      <td class="fs-sm">${o.order_type}</td>
+      <td class="fs-xs muted">${o.items.join(', ')}</td>
+      <td class="fs-xs">${o.status}</td>
+      <td class="fs-sm fw7 num">₱${o.total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`).join('');
+  document.getElementById('srTableFoot').innerHTML = `<tr><td colspan="5">Grand Total (${byOrder.size} orders)</td><td class="num">₱${grandTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+}
+
+function renderSalesReportByProduct(grandTotal) {
+  const byProduct = new Map();
+  srRows.forEach(r => {
+    if (!byProduct.has(r.product_name)) {
+      byProduct.set(r.product_name, { type: r.product_type, shape: r.container_shape, qty: 0, total: 0 });
+    }
+    const p = byProduct.get(r.product_name);
+    p.qty += Number(r.quantity);
+    p.total += Number(r.subtotal);
+  });
+  const sorted = [...byProduct.entries()].sort((a,b) => b[1].total - a[1].total);
+  const totalQty = sorted.reduce((s,[,p]) => s + p.qty, 0);
+
+  document.getElementById('srTableHead').innerHTML = '<tr><th>Product</th><th>Container</th><th class="num">Qty Sold</th><th class="num">Total Revenue</th></tr>';
+  document.getElementById('srTableBody').innerHTML = sorted.map(([name, p]) => `
+    <tr>
+      <td class="fs-sm fw7 txt-navy">${name}</td>
+      <td class="fs-xs muted">${p.shape ? (p.shape[0].toUpperCase() + p.shape.slice(1)) : '—'}</td>
+      <td class="fs-sm num">${p.qty}</td>
+      <td class="fs-sm fw7 num">₱${p.total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`).join('');
+  document.getElementById('srTableFoot').innerHTML = `<tr><td colspan="2">Grand Total</td><td class="num">${totalQty}</td><td class="num">₱${grandTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+}
+
+function downloadSalesReportExcel() {
+  if (!srRows.length) return alert('Load a report first.');
+  const from = document.getElementById('srFrom').value, to = document.getElementById('srTo').value;
+  const grandTotal = srRows.reduce((sum, r) => sum + Number(r.subtotal), 0);
+
+  const itemRows = srRows.map(r => ({
+    'Order Date': r.order_date, 'Order ID': r.order_id, 'Customer': r.customer_name,
+    'Company': r.company_name || '', 'Customer Type': r.customer_type, 'Order Type': r.order_type,
+    'Status': r.status, 'Payment Method': r.payment_method || '', 'Product': r.product_name,
+    'Container': r.container_shape || '', 'Quantity': r.quantity, 'Unit Price': Number(r.unit_price),
+    'Subtotal': Number(r.subtotal)
+  }));
+  itemRows.push({ 'Order Date': '', 'Order ID': '', 'Customer': '', 'Company': '', 'Customer Type': '',
+    'Order Type': '', 'Status': '', 'Payment Method': '', 'Product': '', 'Container': '', 'Quantity': '',
+    'Unit Price': 'GRAND TOTAL', 'Subtotal': grandTotal });
+
+  const byProduct = new Map();
+  srRows.forEach(r => {
+    if (!byProduct.has(r.product_name)) byProduct.set(r.product_name, { shape: r.container_shape, qty: 0, total: 0 });
+    const p = byProduct.get(r.product_name);
+    p.qty += Number(r.quantity); p.total += Number(r.subtotal);
+  });
+  const productRows = [...byProduct.entries()].sort((a,b) => b[1].total - a[1].total).map(([name, p]) => ({
+    'Product': name, 'Container': p.shape || '', 'Qty Sold': p.qty, 'Total Revenue': p.total
+  }));
+  productRows.push({ 'Product': 'GRAND TOTAL', 'Container': '', 'Qty Sold': productRows.reduce((s,r)=>s+r['Qty Sold'],0), 'Total Revenue': grandTotal });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(itemRows), 'Order Items');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(productRows), 'By Product');
+  XLSX.writeFile(wb, `clean-queen-sales-report-${from}-to-${to}.xlsx`);
+}
+
+// ==============================================================
 // NEW ORDER — staff POS (phone / walk-in / messaged orders)
 // Writes to the SAME orders/order_items tables the customer's own
 // "Order Water" flow uses — one source of truth, two entry points.
@@ -1860,7 +2080,7 @@ async function initNewOrder() {
 // can never overcharge or undercharge.
 function noEffectivePrice(p) {
   if (noCustomerOverrides[p.id] != null) return Number(noCustomerOverrides[p.id]);
-  if (noSelectedCustomer?.customer_type === 'corporate' && p.corporate_price != null) return Number(p.corporate_price);
+  if (noSelectedCustomer?.customer_type === 'corporate' && noSelectedCustomer?.gets_corporate_pricing !== false && p.corporate_price != null) return Number(p.corporate_price);
   return Number(p.price);
 }
 
