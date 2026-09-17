@@ -673,9 +673,9 @@ tbody tr:hover{background:var(--off-white);}
               <div class="flex justify-between"><span class="muted">Purified Gallons Used (Meter)</span><strong id="dcsPurUsed">—</strong></div>
               <div class="flex justify-between"><span class="muted">Less: Gallons Sold</span><strong id="dcsPurSold">—</strong></div>
               <div class="flex justify-between" style="border-top:1px solid var(--line);padding-top:8px"><span class="muted">Unaccounted (before allowances)</span><strong id="dcsPurUnaccounted">—</strong></div>
-              <div class="flex justify-between"><span class="muted">Wastage Allowance</span><span class="badge" style="background:var(--surface-2);color:var(--muted)">⏳ Not yet configured</span></div>
-              <div class="flex justify-between"><span class="muted">Theoretical Purified Use</span><span class="badge" style="background:var(--surface-2);color:var(--muted)">⏳ Not yet configured</span></div>
-              <div class="flex justify-between"><span class="muted">Purified Variance</span><span class="badge" style="background:var(--surface-2);color:var(--muted)">⏳ Not yet configured</span></div>
+              <div class="flex justify-between"><span class="muted">Wastage Allowance</span><strong id="dcsPurAllowance">—</strong></div>
+              <div class="flex justify-between"><span class="muted">Theoretical Purified Use</span><strong id="dcsPurTheoretical">—</strong></div>
+              <div class="flex justify-between" style="border-top:1px solid var(--line);padding-top:8px"><span class="muted">Purified Variance</span><span id="dcsPurVariance">—</span></div>
             </div>
           </div>
 
@@ -757,6 +757,16 @@ tbody tr:hover{background:var(--off-white);}
             <thead><tr><th>Product</th><th>Opening</th><th>Closing</th><th>Gallons Dispensed</th><th>Meter Replaced?</th><th></th></tr></thead>
             <tbody id="meterRowsBody"></tbody>
           </table>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:4px">🔍 Purified Meter Check</h3>
+          <p class="fs-sm muted" style="margin-bottom:14px">Purified has no wastage allowance — the meter's Gallons Dispensed should exactly match gallons sold that day.</p>
+          <div style="display:flex;flex-direction:column;gap:8px" class="fs-sm">
+            <div class="flex justify-between"><span class="muted">Gallons Dispensed (Meter)</span><strong id="purCheckMeter">—</strong></div>
+            <div class="flex justify-between"><span class="muted">Gallons Sold Today</span><strong id="purCheckSold">—</strong></div>
+            <div class="flex justify-between" style="border-top:1px solid var(--line);padding-top:8px"><span class="muted">Result</span><span id="purCheckResult">—</span></div>
+          </div>
         </div>
 
         <div class="grid g2" style="margin-bottom:16px">
@@ -1531,6 +1541,37 @@ async function loadClosingDay() {
 
   await loadArLedger();
   await refreshSummaryPanel(date, /*prefillSales*/ true);
+  await loadPurifiedMeterCheck(date);
+}
+
+// ---- Purified Meter Check: meter gallons dispensed vs. gallons actually
+// sold that day. No wastage allowance — any nonzero difference is flagged. ----
+let purCheckSoldGallons = null;
+
+async function loadPurifiedMeterCheck(date) {
+  const { data, error } = await db.rpc('cq_get_purified_gallons_sold', { p_date: date });
+  purCheckSoldGallons = error ? null : Number(data);
+  document.getElementById('purCheckSold').textContent = purCheckSoldGallons != null ? purCheckSoldGallons.toFixed(2) + ' gal' : '—';
+  renderPurifiedMeterCheck();
+}
+
+function renderPurifiedMeterCheck() {
+  const purRow = document.querySelector('tr[data-product="purified"]');
+  const meterText = purRow?.querySelector('.meter-gallons')?.textContent || '—';
+  const meterGallons = parseFloat(meterText);
+  document.getElementById('purCheckMeter').textContent = meterText;
+
+  const resultEl = document.getElementById('purCheckResult');
+  if (isNaN(meterGallons) || purCheckSoldGallons == null) {
+    resultEl.innerHTML = '<span class="muted">Enter today\'s closing reading to check</span>';
+    return;
+  }
+  const diff = meterGallons - purCheckSoldGallons;
+  if (Math.abs(diff) < 0.05) {
+    resultEl.innerHTML = '<span class="badge" style="background:var(--good-bg);color:var(--good)">✅ Matches</span>';
+  } else {
+    resultEl.innerHTML = `<span class="badge" style="background:var(--bad-bg);color:var(--bad)">⚠️ ${diff > 0 ? '+' : ''}${diff.toFixed(2)} gal</span>`;
+  }
 }
 
 function meterRowHtml(product, existing, opening) {
@@ -1574,8 +1615,9 @@ function updateMeterGallons(closingInputEl) {
   const opening = parseFloat(tr.querySelector('.meter-opening').value);
   const closing = parseFloat(closingInputEl.value);
   const cell = tr.querySelector('.meter-gallons');
-  if (isNaN(opening) || isNaN(closing)) { cell.textContent = '—'; return; }
-  cell.textContent = (closing - opening).toFixed(1) + ' gal';
+  if (isNaN(opening) || isNaN(closing)) { cell.textContent = '—'; }
+  else { cell.textContent = (closing - opening).toFixed(1) + ' gal'; }
+  if (tr.dataset.product === 'purified') renderPurifiedMeterCheck();
 }
 
 async function saveMeterRow(btnEl) {
@@ -1612,6 +1654,7 @@ async function saveMeterRow(btnEl) {
 
   btnEl.textContent = '✓ Saved'; setTimeout(() => btnEl.textContent = origLabel, 1500);
   refreshSummaryPanel(date, false);
+  if (product === 'purified') renderPurifiedMeterCheck();
 }
 
 function updateSalesTotal() {
@@ -2658,10 +2701,27 @@ function renderDcsBackwashFromSheet(sheet) {
 }
 
 // ---- 5. Purified reconciliation ----
+// Theoretical Purified Use = gallons sold that day (5 gal per unit, Round+Slim
+// combined); Purified Variance = meter gallons dispensed minus that. No
+// wastage allowance is carved out — any nonzero variance is a real flag.
 function renderDcsPurified(p) {
   document.getElementById('dcsPurUsed').textContent = p.gallons_used_meter != null ? Number(p.gallons_used_meter).toFixed(4) + ' gal' : 'No meter reading yet';
   document.getElementById('dcsPurSold').textContent = Number(p.gallons_sold).toFixed(2) + ' gal';
   document.getElementById('dcsPurUnaccounted').textContent = p.unaccounted_before_allowances != null ? Number(p.unaccounted_before_allowances).toFixed(4) + ' gal' : '—';
+  document.getElementById('dcsPurAllowance').textContent = Number(p.wastage_allowance).toFixed(2) + ' gal';
+  document.getElementById('dcsPurTheoretical').textContent = Number(p.theoretical_use).toFixed(2) + ' gal';
+
+  const varEl = document.getElementById('dcsPurVariance');
+  if (p.purified_variance == null) {
+    varEl.innerHTML = '<span class="muted">—</span>';
+  } else {
+    const v = Number(p.purified_variance);
+    if (Math.abs(v) < 0.0001) {
+      varEl.innerHTML = '<span class="badge" style="background:var(--good-bg);color:var(--good)">✅ Matches</span>';
+    } else {
+      varEl.innerHTML = `<span class="badge" style="background:var(--bad-bg);color:var(--bad)">⚠️ ${v > 0 ? '+' : ''}${v.toFixed(2)} gal</span>`;
+    }
+  }
 }
 
 // ---- Save draft / submit / review ----
