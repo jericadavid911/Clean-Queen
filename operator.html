@@ -1543,8 +1543,10 @@ function meterRowHtml(product, existing, opening) {
     <td>
       <input class="input meter-opening" type="number" step="0.1"
              value="${noHistory ? '' : openingVal}" data-orig="${noHistory ? '' : openingVal}"
-             ${noHistory ? '' : 'readonly'} style="max-width:110px${noHistory ? '' : ';background:var(--off-white)'}"
-             placeholder="${noHistory ? 'Enter starting reading' : ''}"/>
+             ${noHistory ? '' : 'readonly'} style="max-width:110px${noHistory ? '' : ';background:var(--off-white);cursor:not-allowed;color:var(--muted)'}"
+             placeholder="${noHistory ? 'Enter starting reading' : ''}"
+             title="${noHistory ? '' : 'Carries over automatically from yesterday\'s closing reading. Check \'Meter Replaced?\' if you need to correct it.'}"/>
+      ${noHistory ? '' : '<div class="fs-xs muted" style="margin-top:2px">🔒 auto-filled</div>'}
     </td>
     <td><input class="input meter-closing" type="number" step="0.1" value="${closing}" style="max-width:110px" placeholder="Today's reading" oninput="updateMeterGallons(this)"/></td>
     <td class="meter-gallons fw8 txt-navy">${gallons !== null && gallons !== undefined ? Number(gallons).toFixed(1)+' gal' : '—'}</td>
