@@ -293,6 +293,10 @@ tbody tr:hover{background:var(--off-white);}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
         Inventory <span id="sbLowStockCount" class="stab" style="margin-left:auto;padding:1px 8px;font-size:.7rem;background:rgba(220,38,38,.15);color:var(--bad);border:none;display:none"></span>
       </a>
+      <a onclick="showSection('containerloans',this)" data-roles="admin,clerk,rider">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.91 8.84L8.56 2.23a1.93 1.93 0 00-1.81 0L3.1 4.13a2.12 2.12 0 00-.05 3.69l12.22 6.93a2 2 0 001.94 0L21 12.51a2.12 2.12 0 00-.09-3.67z"/><path d="M3.09 8.84l12.35-6.61a1.93 1.93 0 011.81 0l3.65 1.9a2.12 2.12 0 01.05 3.69L8.73 14.75a2 2 0 01-1.94 0L3 12.51a2.12 2.12 0 01.09-3.67z"/><path d="M12 22V12"/></svg>
+        Container Loans
+      </a>
       <a onclick="showSection('dcs',this)" data-roles="admin,clerk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
         Daily Control Sheet
@@ -574,6 +578,49 @@ tbody tr:hover{background:var(--off-white);}
           </table>
         </div>
       </div><!-- /inventory -->
+
+      <!-- CONTAINER LOANS — corporate/SME partners borrow dispensers &
+           5-gallon jugs (retail buys theirs outright, no tracking needed
+           there). Tracks who currently holds how many, so partners can
+           be followed up for return. -->
+      <div class="section-view" id="sec-containerloans">
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:4px">📦 Containers Currently On Loan</h3>
+          <p class="fs-sm muted" style="margin-bottom:14px">Corporate/SME partners borrow 5-gallon Round/Slim containers — these stay Clean Queen's property. Retail customers buy their containers outright, so they don't appear here.</p>
+          <div id="clLoading" class="empty-state"><div class="spinner-inline"></div> Loading…</div>
+          <div id="clEmpty" class="empty-state" style="display:none"><div class="ei">📦</div><p>No outstanding container loans.</p></div>
+          <table id="clTable" style="display:none">
+            <thead><tr><th>Partner</th><th>Round</th><th>Slim</th><th>Last Activity</th><th></th></tr></thead>
+            <tbody id="clTableBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px">Log a Loan or Return</h3>
+          <div class="flex gap-2" style="flex-wrap:wrap;align-items:flex-end">
+            <div style="flex:1;min-width:200px">
+              <label class="fs-sm fw7 txt-navy">Corporate Partner</label>
+              <input class="input" type="text" id="clCustomerSearch" placeholder="Search corporate customers…" style="margin-top:6px" oninput="renderClCustomerResults()"/>
+              <div id="clCustomerResults" style="position:relative"></div>
+              <div id="clSelectedCustomer" class="fs-sm fw7 txt-navy" style="margin-top:6px"></div>
+            </div>
+            <div>
+              <label class="fs-sm fw7 txt-navy">Container</label>
+              <select class="input" id="clContainerType" style="margin-top:6px"><option value="round">Round</option><option value="slim">Slim</option></select>
+            </div>
+            <div>
+              <label class="fs-sm fw7 txt-navy">Action</label>
+              <select class="input" id="clAction" style="margin-top:6px"><option value="out">Loaned Out (+)</option><option value="in">Returned (−)</option></select>
+            </div>
+            <div>
+              <label class="fs-sm fw7 txt-navy">Qty</label>
+              <input class="input" type="number" min="1" id="clQty" value="1" style="margin-top:6px;max-width:80px"/>
+            </div>
+            <button class="btn btn-gold" onclick="submitContainerMovement()">Log</button>
+          </div>
+          <input class="input" type="text" id="clNote" placeholder="Note (optional)" style="margin-top:10px"/>
+          <div id="clMsg" class="msg error" style="display:none;margin-top:8px"></div>
+        </div>
+      </div><!-- /containerloans -->
 
       <!-- DAILY CONTROL SHEET (own module — pulls from Orders, Products,
            Payments, Expenses, Meters; does not replace Daily Closing) -->
@@ -995,6 +1042,21 @@ tbody tr:hover{background:var(--off-white);}
   </div>
 </div>
 
+<!-- CONTAINER LOAN HISTORY MODAL -->
+<div class="modal" id="containerHistoryModal">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;color:var(--navy)">📦 Container History — <span id="chModalCustName">—</span></h3>
+      <div class="modal-close" onclick="closeContainerHistoryModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div id="chModalList"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ADD STAFF MODAL -->
 <div class="modal" id="staffModal">
   <div class="modal-card" style="max-width:420px">
@@ -1141,6 +1203,7 @@ function showSection(id, linkEl) {
     closing: ['Daily Closing','Meter readings, sales & credit for the day'],
     reports: ['Shop Reports','Download sales, gallons & AR history'],
     salesreport: ['Sales Report','Itemized sales, groupable by order or product'],
+    containerloans: ['Container Loans','Track 5-gallon containers on loan to corporate partners'],
     mydeliveries: ['My Deliveries','Orders assigned to you'],
     staff: ['Staff','Manage staff accounts & roles']
   };
@@ -1157,6 +1220,7 @@ function showSection(id, linkEl) {
   if (id === 'closing') initClosingDay();
   if (id === 'reports') initReportsDates();
   if (id === 'salesreport') initSalesReportDates();
+  if (id === 'containerloans') loadContainerLoans();
 }
 
 // ---- ORDERS ----
@@ -1411,6 +1475,7 @@ function renderCustomers(list) {
         </label>
       ` : ''}
       ${currentStaff?.role === 'admin' ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openCustomerPricing(${JSON.stringify(c)})'>💰 Special Pricing</button>` : ''}
+      ${isCorp ? `<button class="btn btn-sm" style="margin-left:8px" onclick="openContainerHistory('${c.id}', '${(c.company_name || c.name || '').replace(/'/g,"\\'")}')">📦 Loans</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -1496,6 +1561,113 @@ async function saveCustomerPriceOverride(productId) {
   const { error } = await db.rpc('cq_set_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId, p_price: price });
   if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
   openCustomerPricing(pricingModalCustomer);
+}
+
+// ==============================================================
+// CONTAINER LOANS — corporate/SME partners borrow 5-gallon containers
+// (Round/Slim); retail buys theirs outright, so only corporate customers
+// show up here. Any staff can log a movement — the audit trail (who
+// logged what, when) is the check, same as Inventory.
+// ==============================================================
+let clSelectedCustomerId = null;
+
+async function loadContainerLoans() {
+  document.getElementById('clLoading').style.display = 'block';
+  document.getElementById('clTable').style.display = 'none';
+  document.getElementById('clEmpty').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_container_balances');
+  document.getElementById('clLoading').style.display = 'none';
+  if (error) { console.error(error); return alert('Error: ' + error.message); }
+
+  const byCustomer = new Map();
+  (data || []).forEach(row => {
+    if (!row.balance) return; // skip zeroed-out balances
+    if (!byCustomer.has(row.customer_id)) {
+      byCustomer.set(row.customer_id, {
+        name: row.company_name || row.customer_name, round: 0, slim: 0, lastActivity: row.last_activity
+      });
+    }
+    const c = byCustomer.get(row.customer_id);
+    c[row.container_type] = row.balance;
+    if (new Date(row.last_activity) > new Date(c.lastActivity)) c.lastActivity = row.last_activity;
+  });
+
+  if (!byCustomer.size) {
+    document.getElementById('clEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('clTable').style.display = 'table';
+  document.getElementById('clTableBody').innerHTML = [...byCustomer.entries()].map(([id, c]) => `
+    <tr>
+      <td class="fw7 txt-navy">${c.name}</td>
+      <td>${c.round || 0}</td>
+      <td>${c.slim || 0}</td>
+      <td class="fs-xs muted">${new Date(c.lastActivity).toLocaleDateString()}</td>
+      <td><button class="btn btn-sm" onclick="openContainerHistory('${id}', '${c.name.replace(/'/g,"\\'")}')">History</button></td>
+    </tr>`).join('');
+}
+
+function renderClCustomerResults() {
+  const q = document.getElementById('clCustomerSearch').value.toLowerCase().trim();
+  const results = document.getElementById('clCustomerResults');
+  if (!q) { results.innerHTML = ''; return; }
+  const matches = allCustomers.filter(c => c.customer_type === 'corporate' &&
+    ((c.company_name||'').toLowerCase().includes(q) || (c.name||'').toLowerCase().includes(q))
+  ).slice(0, 8);
+  results.innerHTML = matches.map(c => `
+    <div class="customer-row" style="cursor:pointer;padding:8px 10px;position:absolute;background:#fff;width:100%;z-index:10;border:1px solid var(--line-2)" onclick='selectClCustomer(${JSON.stringify(c)})'>
+      <div style="flex:1"><div class="fw7 fs-sm txt-navy">🏢 ${c.company_name || c.name}</div></div>
+    </div>`).join('') || '<p class="fs-xs muted" style="padding:8px;position:absolute;background:#fff;width:100%;border:1px solid var(--line-2)">No corporate customers match.</p>';
+}
+
+function selectClCustomer(c) {
+  clSelectedCustomerId = c.id;
+  document.getElementById('clCustomerSearch').value = '';
+  document.getElementById('clCustomerResults').innerHTML = '';
+  document.getElementById('clSelectedCustomer').textContent = '🏢 ' + (c.company_name || c.name);
+}
+
+async function submitContainerMovement() {
+  const msg = document.getElementById('clMsg');
+  msg.style.display = 'none';
+  if (!clSelectedCustomerId) { msg.textContent = 'Select a corporate partner first.'; msg.style.display = 'block'; return; }
+
+  const containerType = document.getElementById('clContainerType').value;
+  const action = document.getElementById('clAction').value;
+  const qty = parseInt(document.getElementById('clQty').value, 10);
+  const note = document.getElementById('clNote').value.trim() || null;
+  if (!qty || qty < 1) { msg.textContent = 'Enter a quantity of at least 1.'; msg.style.display = 'block'; return; }
+
+  const delta = action === 'out' ? qty : -qty;
+  const { error } = await db.rpc('cq_log_container_movement', { p_customer_id: clSelectedCustomerId, p_container_type: containerType, p_quantity_change: delta, p_note: note });
+  if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+
+  clSelectedCustomerId = null;
+  document.getElementById('clSelectedCustomer').textContent = '';
+  document.getElementById('clQty').value = 1;
+  document.getElementById('clNote').value = '';
+  loadContainerLoans();
+}
+
+async function openContainerHistory(customerId, customerName) {
+  document.getElementById('chModalCustName').textContent = customerName;
+  document.getElementById('chModalList').innerHTML = '<div class="empty-state" style="padding:20px"><div class="spinner-inline"></div> Loading…</div>';
+  document.getElementById('containerHistoryModal').classList.add('open');
+  const { data, error } = await db.rpc('cq_get_container_loan_history', { p_customer_id: customerId });
+  if (error) { document.getElementById('chModalList').innerHTML = '<p class="fs-sm" style="color:var(--bad)">Error: ' + error.message + '</p>'; return; }
+  document.getElementById('chModalList').innerHTML = (data || []).map(r => `
+    <div class="flex justify-between fs-sm" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
+      <div>
+        <div class="fw7 txt-navy">${r.container_type === 'round' ? 'Round' : 'Slim'} ${r.quantity_change > 0 ? '+' + r.quantity_change + ' (loaned out)' : r.quantity_change + ' (returned)'}</div>
+        <div class="fs-xs muted">${new Date(r.created_at).toLocaleString()} · ${r.performed_by_name || 'Unknown'}${r.note ? ' · ' + r.note : ''}</div>
+      </div>
+      <div class="fw8 txt-navy">Bal: ${r.resulting_balance}</div>
+    </div>`).join('') || '<p class="fs-sm muted" style="padding:12px">No history yet.</p>';
+}
+
+function closeContainerHistoryModal() {
+  document.getElementById('containerHistoryModal').classList.remove('open');
 }
 
 // ==============================================================
