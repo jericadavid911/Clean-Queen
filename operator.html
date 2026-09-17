@@ -928,6 +928,24 @@ tbody tr:hover{background:var(--off-white);}
   </div>
 </div>
 
+<!-- CUSTOMER SPECIAL PRICING MODAL (admin-only) -->
+<div class="modal" id="pricingModal">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;color:var(--navy)">💰 Special Pricing — <span id="pricingModalCustName">—</span></h3>
+      <div class="modal-close" onclick="closeCustomerPricingModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p class="fs-xs muted" style="margin-bottom:12px">Set a negotiated rate for this customer that overrides the standard retail/corporate price on any product. Leave blank to use the standard rate.</p>
+      <div id="pricingModalLoading" class="empty-state" style="padding:20px"><div class="spinner-inline"></div> Loading products…</div>
+      <div id="pricingModalList" style="display:none"></div>
+      <div id="pricingModalMsg" class="msg error" style="display:none;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ADD STAFF MODAL -->
 <div class="modal" id="staffModal">
   <div class="modal-card" style="max-width:420px">
@@ -1333,8 +1351,70 @@ function renderCustomers(list) {
       <div class="flex gap-2 items-center" style="margin-left:8px">
         <span class="fw7 txt-navy fs-sm">⭐ ${c.loyalty_points||0} pts</span>
       </div>
+      ${isCorp && currentStaff?.role === 'admin' ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openCustomerPricing(${JSON.stringify(c)})'>💰 Special Pricing</button>` : ''}
     </div>`;
   }).join('');
+}
+
+// ---- Customer special pricing (admin-only negotiated rates) ----
+let pricingModalCustomer = null;
+
+async function openCustomerPricing(c) {
+  pricingModalCustomer = c;
+  document.getElementById('pricingModalCustName').textContent = c.company_name || c.name || '—';
+  document.getElementById('pricingModalLoading').style.display = 'block';
+  document.getElementById('pricingModalList').style.display = 'none';
+  document.getElementById('pricingModalMsg').style.display = 'none';
+  document.getElementById('pricingModal').classList.add('open');
+
+  const [{ data: products }, { data: overrides }] = await Promise.all([
+    db.rpc('cq_get_products_staff'),
+    db.rpc('cq_get_customer_price_overrides', { p_customer_id: c.id })
+  ]);
+  const overrideMap = {};
+  (overrides || []).forEach(o => { overrideMap[o.product_id] = o.price; });
+
+  document.getElementById('pricingModalList').innerHTML = (products || []).filter(p => p.is_active).map(p => {
+    const standardPrice = (c.customer_type === 'corporate' && p.corporate_price != null) ? Number(p.corporate_price) : Number(p.price);
+    const override = overrideMap[p.id];
+    return `
+    <div class="flex items-center gap-2" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
+      <div style="flex:1">
+        <div class="fw7 fs-sm txt-navy">${p.emoji || ''} ${p.name}</div>
+        <div class="fs-xs muted">Standard rate: ₱${standardPrice.toLocaleString()} / ${p.unit}</div>
+      </div>
+      <input class="input" type="number" min="0" step="0.01" id="pricingOverride_${p.id}" value="${override != null ? override : ''}" placeholder="₱" style="width:90px"/>
+      <button class="btn btn-sm btn-navy" onclick="saveCustomerPriceOverride('${p.id}')">Save</button>
+      ${override != null ? `<button class="btn btn-sm" onclick="removeCustomerPriceOverride('${p.id}')">✕</button>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('pricingModalLoading').style.display = 'none';
+  document.getElementById('pricingModalList').style.display = 'block';
+}
+
+function closeCustomerPricingModal() {
+  document.getElementById('pricingModal').classList.remove('open');
+  pricingModalCustomer = null;
+}
+
+async function saveCustomerPriceOverride(productId) {
+  const input = document.getElementById('pricingOverride_' + productId);
+  const value = input.value.trim();
+  const msg = document.getElementById('pricingModalMsg');
+  msg.style.display = 'none';
+  if (value === '') return;
+  const price = Number(value);
+  if (isNaN(price) || price < 0) { msg.textContent = 'Enter a valid price.'; msg.style.display = 'block'; return; }
+  const { error } = await db.rpc('cq_set_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId, p_price: price });
+  if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+  openCustomerPricing(pricingModalCustomer);
+}
+
+async function removeCustomerPriceOverride(productId) {
+  const { error } = await db.rpc('cq_remove_customer_price_override', { p_customer_id: pricingModalCustomer.id, p_product_id: productId });
+  const msg = document.getElementById('pricingModalMsg');
+  if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+  openCustomerPricing(pricingModalCustomer);
 }
 
 // ==============================================================
@@ -1754,6 +1834,7 @@ let noCart = [];                // [{product_id, name, emoji, price, type, quant
 let noSelectedCustomer = null;  // {id, name, phone, email, address}
 let noOrderType = 'delivery';
 let noInitialized = false;
+let noCustomerOverrides = {};   // {product_id: price} special negotiated rates for the selected customer
 
 async function initNewOrder() {
   if (!allCustomers.length) await loadCustomers();
@@ -1771,12 +1852,14 @@ async function initNewOrder() {
   renderCustomerPicker();
 }
 
-// Corporate customers use corporate_price where the product has one set;
-// otherwise everyone pays the normal retail price. This is a PREVIEW only —
-// cq_create_order re-derives the real price server-side from the customer's
-// actual type at submit time, so a stale client price can never overcharge
-// or undercharge.
+// Price priority: a customer-specific special rate (noCustomerOverrides) wins;
+// otherwise corporate customers use corporate_price where the product has one
+// set; otherwise everyone pays the normal retail price. This is a PREVIEW
+// only — cq_create_order re-derives the real price server-side from the
+// customer's actual type + overrides at submit time, so a stale client price
+// can never overcharge or undercharge.
 function noEffectivePrice(p) {
+  if (noCustomerOverrides[p.id] != null) return Number(noCustomerOverrides[p.id]);
   if (noSelectedCustomer?.customer_type === 'corporate' && p.corporate_price != null) return Number(p.corporate_price);
   return Number(p.price);
 }
@@ -1784,13 +1867,17 @@ function noEffectivePrice(p) {
 function renderNoProductGrid() {
   document.getElementById('noProductGrid').innerHTML = noProducts.map(p => {
     const price = noEffectivePrice(p);
-    const isCorpRate = price !== Number(p.price);
+    const hasOverride = noCustomerOverrides[p.id] != null;
+    const isCorpRate = !hasOverride && price !== Number(p.price);
+    const badge = hasOverride
+      ? '<span class="badge" style="background:var(--blue-bg);color:var(--blue);padding:1px 6px;font-size:.62rem">Special rate</span>'
+      : (isCorpRate ? '<span class="badge" style="background:var(--blue-bg);color:var(--blue);padding:1px 6px;font-size:.62rem">Corporate rate</span>' : '');
     return `
     <div class="customer-row" style="cursor:pointer;padding:10px 12px" onclick="addToCart('${p.id}')">
       <div class="c-avatar" style="background:var(--surface-2);font-size:1.2rem">${p.emoji || '💧'}</div>
       <div style="flex:1">
         <div class="fw7 fs-sm txt-navy">${p.name}</div>
-        <div class="fs-xs muted">₱${price.toLocaleString()} / ${p.unit} ${isCorpRate ? '<span class="badge" style="background:var(--blue-bg);color:var(--blue);padding:1px 6px;font-size:.62rem">Corporate rate</span>' : ''}</div>
+        <div class="fs-xs muted">₱${price.toLocaleString()} / ${p.unit} ${badge}</div>
       </div>
       <button class="btn btn-sm btn-navy">+ Add</button>
     </div>`;
@@ -1824,6 +1911,14 @@ function changeCartQty(productId, delta) {
   renderCart();
 }
 
+function setCartQty(productId, value) {
+  const item = noCart.find(c => c.product_id === productId);
+  if (!item) return;
+  const qty = Math.max(1, parseInt(value, 10) || 1);
+  item.quantity = qty;
+  renderCart();
+}
+
 function removeFromCart(productId) {
   noCart = noCart.filter(c => c.product_id !== productId);
   renderCart();
@@ -1845,7 +1940,7 @@ function renderCart() {
     total += subtotal;
     return `<tr>
       <td class="fs-sm">${c.emoji || '💧'} ${c.name}</td>
-      <td><div class="qty-ctrl"><button onclick="changeCartQty('${c.product_id}',-1)">−</button><span>${c.quantity}</span><button onclick="changeCartQty('${c.product_id}',1)">+</button></div></td>
+      <td><div class="qty-ctrl"><button onclick="changeCartQty('${c.product_id}',-1)">−</button><input type="number" min="1" value="${c.quantity}" onchange="setCartQty('${c.product_id}', this.value)" style="width:40px;height:26px;padding:0;border:none;outline:none;text-align:center;font-weight:800;font-size:.85rem"/><button onclick="changeCartQty('${c.product_id}',1)">+</button></div></td>
       <td class="fs-sm">₱${c.price.toLocaleString()}</td>
       <td class="fw7 txt-navy">₱${subtotal.toLocaleString()}</td>
       <td><button class="btn btn-sm" onclick="removeFromCart('${c.product_id}')">✕</button></td>
@@ -1869,8 +1964,9 @@ function renderCustomerPicker() {
     </div>`).join('') || '<p class="fs-xs muted" style="padding:8px">No matches. Try "+ New Customer" below.</p>';
 }
 
-function selectCustomer(c) {
+async function selectCustomer(c) {
   noSelectedCustomer = c;
+  noCustomerOverrides = {};
   document.getElementById('noCustomerSearch').value = '';
   document.getElementById('noCustomerResults').innerHTML = '';
   document.getElementById('noCustomerSelected').style.display = 'none';
@@ -1880,10 +1976,17 @@ function selectCustomer(c) {
   document.getElementById('noSelCustContact').textContent = [c.phone, c.email].filter(Boolean).join(' · ') || '—';
   if (c.address && noOrderType === 'delivery') document.getElementById('noAddress').value = c.address;
   if (noProducts.length) noRepriceForCustomer();
+  const { data } = await db.rpc('cq_get_customer_price_overrides', { p_customer_id: c.id });
+  if (data && noSelectedCustomer?.id === c.id) {
+    noCustomerOverrides = {};
+    data.forEach(row => { noCustomerOverrides[row.product_id] = row.price; });
+    noRepriceForCustomer();
+  }
 }
 
 function clearSelectedCustomer() {
   noSelectedCustomer = null;
+  noCustomerOverrides = {};
   document.getElementById('noCustomerSelected').style.display = 'block';
   document.getElementById('noCustomerSelectedCard').style.display = 'none';
   if (noProducts.length) noRepriceForCustomer();
