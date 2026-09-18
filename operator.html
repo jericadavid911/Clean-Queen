@@ -1057,6 +1057,36 @@ tbody tr:hover{background:var(--off-white);}
   </div>
 </div>
 
+<!-- EDIT CUSTOMER MODAL -->
+<div class="modal" id="editCustomerModal">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head">
+      <h3 style="font-size:1rem;color:var(--navy)">✎ Edit Customer</h3>
+      <div class="modal-close" onclick="closeEditCustomerModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="flex gap-2" style="margin-bottom:12px">
+        <button class="btn btn-sm" id="ecTypeRetail" onclick="setEcType('retail')" style="flex:1">Retail</button>
+        <button class="btn btn-sm" id="ecTypeCorporate" onclick="setEcType('corporate')" style="flex:1">🏢 Corporate</button>
+      </div>
+      <label class="fs-sm fw7 txt-navy">Name</label>
+      <input class="input" type="text" id="ecName" style="margin-top:6px;margin-bottom:10px"/>
+      <label class="fs-sm fw7 txt-navy" id="ecCompanyLabel" style="display:none">Company Name</label>
+      <input class="input" type="text" id="ecCompanyName" style="margin-top:6px;margin-bottom:10px;display:none"/>
+      <label class="fs-sm fw7 txt-navy">Phone</label>
+      <input class="input" type="text" id="ecPhone" style="margin-top:6px;margin-bottom:10px"/>
+      <label class="fs-sm fw7 txt-navy">Email</label>
+      <input class="input" type="email" id="ecEmail" style="margin-top:6px;margin-bottom:10px"/>
+      <label class="fs-sm fw7 txt-navy">Address</label>
+      <input class="input" type="text" id="ecAddress" style="margin-top:6px;margin-bottom:6px"/>
+      <div id="ecMsg" class="msg error" style="display:none;margin-top:8px;margin-bottom:8px"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveEditCustomer()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- CORPORATE TERMS / PO WORKFLOW MODAL -->
 <div class="modal" id="corpTermsModal">
   <div class="modal-card" style="max-width:760px">
@@ -1511,6 +1541,7 @@ function renderCustomers(list) {
           Gets corporate pricing
         </label>
       ` : ''}
+      ${currentStaff?.role === 'admin' ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openEditCustomer(${JSON.stringify(c)})'>✎ Edit</button>` : ''}
       ${currentStaff?.role === 'admin' ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openCustomerPricing(${JSON.stringify(c)})'>💰 Special Pricing</button>` : ''}
       ${isCorp ? `<button class="btn btn-sm" style="margin-left:8px" onclick="openContainerHistory('${c.id}', '${(c.company_name || c.name || '').replace(/'/g,"\\'")}')">📦 Loans</button>` : ''}
       ${isCorp ? `<button class="btn btn-sm" style="margin-left:8px" onclick='openCorporateTerms(${JSON.stringify(c)})'>📋 Terms/PO</button>` : ''}
@@ -1523,6 +1554,58 @@ async function toggleCorporatePricing(customerId, enabled) {
   if (error) { alert('Error: ' + error.message); return; }
   const c = allCustomers.find(x => x.id === customerId);
   if (c) c.gets_corporate_pricing = enabled;
+}
+
+// ---- Edit customer (admin-only — fixes typos, updates contact info) ----
+let ecCustomerId = null;
+let ecType = 'retail';
+
+function openEditCustomer(c) {
+  ecCustomerId = c.id;
+  document.getElementById('ecName').value = c.name || '';
+  document.getElementById('ecCompanyName').value = c.company_name || '';
+  document.getElementById('ecPhone').value = c.phone || '';
+  document.getElementById('ecEmail').value = c.email || '';
+  document.getElementById('ecAddress').value = c.address || '';
+  document.getElementById('ecMsg').style.display = 'none';
+  setEcType(c.customer_type === 'corporate' ? 'corporate' : 'retail');
+  document.getElementById('editCustomerModal').classList.add('open');
+}
+
+function closeEditCustomerModal() {
+  document.getElementById('editCustomerModal').classList.remove('open');
+  ecCustomerId = null;
+}
+
+function setEcType(type) {
+  ecType = type;
+  document.getElementById('ecTypeRetail').classList.toggle('btn-navy', type === 'retail');
+  document.getElementById('ecTypeCorporate').classList.toggle('btn-navy', type === 'corporate');
+  document.getElementById('ecCompanyLabel').style.display = type === 'corporate' ? 'block' : 'none';
+  document.getElementById('ecCompanyName').style.display = type === 'corporate' ? 'block' : 'none';
+}
+
+async function saveEditCustomer() {
+  const name = document.getElementById('ecName').value.trim();
+  const companyName = document.getElementById('ecCompanyName').value.trim();
+  const phone = document.getElementById('ecPhone').value.trim();
+  const email = document.getElementById('ecEmail').value.trim();
+  const address = document.getElementById('ecAddress').value.trim();
+  const msg = document.getElementById('ecMsg');
+  msg.style.display = 'none';
+  if (!name) { msg.textContent = 'Name is required.'; msg.style.display = 'block'; return; }
+  if (ecType === 'corporate' && !companyName) { msg.textContent = 'Company name is required for a Corporate account.'; msg.style.display = 'block'; return; }
+
+  const { data, error } = await db.rpc('cq_update_customer', {
+    p_customer_id: ecCustomerId, p_name: name, p_phone: phone, p_email: email,
+    p_address: address, p_customer_type: ecType, p_company_name: ecType === 'corporate' ? companyName : ''
+  });
+  if (error) { msg.textContent = 'Error: ' + error.message; msg.style.display = 'block'; return; }
+
+  const idx = allCustomers.findIndex(c => c.id === ecCustomerId);
+  if (idx !== -1) allCustomers[idx] = data;
+  closeEditCustomerModal();
+  renderCustomers(allCustomers);
 }
 
 // ---- Customer special pricing (admin-only negotiated rates) ----
