@@ -649,7 +649,7 @@ tbody tr:hover{background:var(--off-white);}
           <!-- 1. METER READINGS -->
           <div class="card" style="margin-bottom:16px">
             <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:4px">1️⃣ Meter Readings</h3>
-            <p class="fs-sm muted" style="margin-bottom:14px">Opening carries forward automatically. Enter only today's closing reading, in liters. Liters Used and Gallons Used (÷18.9) are calculated — never typed.</p>
+            <p class="fs-sm muted" style="margin-bottom:14px">Opening carries forward automatically. Enter only today's closing reading, in liters. Liters Used and Gallons Used (÷20) are calculated — never typed. Purified isn't entered here — it has its own AI meter, entered on the Daily Closing screen.</p>
             <table>
               <thead><tr><th>Product</th><th>Opening (L)</th><th>Closing (L)</th><th>Liters Used</th><th>Gallons Used</th><th>Replaced?</th><th></th></tr></thead>
               <tbody id="dcsMeterBody"></tbody>
@@ -2110,10 +2110,11 @@ function updateMeterGallons(closingInputEl) {
   const closing = parseFloat(closingInputEl.value);
   const cell = tr.querySelector('.meter-gallons');
   // Meters read liters; cq_save_meter_reading stores gallons_dispensed =
-  // (closing - opening) / 18.9. Preview the same conversion here so it
-  // matches what saving will actually produce.
+  // (closing - opening) / 20 (the owner's own manual conversion, not the
+  // US-gallon constant). Preview the same conversion here so it matches
+  // what saving will actually produce.
   if (isNaN(opening) || isNaN(closing)) { cell.textContent = '—'; }
-  else { cell.textContent = ((closing - opening) / 18.9).toFixed(1) + ' gal'; }
+  else { cell.textContent = ((closing - opening) / 20).toFixed(1) + ' gal'; }
   // Ice usage is subtracted from Purified's raw AI-meter figure, so a
   // change to Ice's dispensed gallons must also refresh that check.
   if (tr.dataset.product === 'purified' || tr.dataset.product === 'ice') renderPurifiedMeterCheck();
@@ -3081,10 +3082,13 @@ function renderDcsStatus(data) {
 }
 
 // ---- 1. Meter Readings ----
+// Purified is deliberately NOT here — it has its own AI meter (direct
+// gallons-dispensed entry, no opening/closing), entered on the Daily
+// Closing screen and shown in the Purified Reconciliation card below.
 const DCS_PRODUCTS = [
   { key: 'alkaline', label: 'Alkaline Water', emoji: '💠' },
   { key: 'mineral',  label: 'Mineral Water',  emoji: '💧' },
-  { key: 'purified', label: 'Purified Water', emoji: '🌊' }
+  { key: 'ice',      label: 'Ice',            emoji: '🧊' }
 ];
 
 function renderDcsMeters(meters, date) {
@@ -3123,11 +3127,11 @@ function dcsToggleDetail(productKeyFull, opening, closing) {
   const row = document.getElementById('dcs-detail-row-' + productKeyFull);
   const cell = document.getElementById('dcs-detail-' + productKeyFull);
   const liters = closing - opening;
-  const gallons = liters / 18.9;
+  const gallons = liters / 20;
   cell.innerHTML = `
     <strong>Opening:</strong> ${Number(opening).toLocaleString()} L &nbsp;·&nbsp; <strong>Closing:</strong> ${Number(closing).toLocaleString()} L<br>
     ${Number(closing).toLocaleString()} − ${Number(opening).toLocaleString()} = <strong>${liters.toFixed(3)} L used</strong><br>
-    ${liters.toFixed(3)} ÷ 18.9 = <strong>${gallons.toFixed(4)} gallons</strong>`;
+    ${liters.toFixed(3)} ÷ 20 = <strong>${gallons.toFixed(4)} gallons</strong>`;
   row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 }
 
@@ -3148,7 +3152,7 @@ function dcsUpdateGallons(closingInputEl) {
   if (isNaN(opening) || isNaN(closing)) { litersCell.textContent = '—'; gallonsCell.textContent = '—'; return; }
   const liters = closing - opening;
   litersCell.textContent = liters.toFixed(3) + ' L';
-  gallonsCell.textContent = (liters / 18.9).toFixed(4) + ' gal';
+  gallonsCell.textContent = (liters / 20).toFixed(4) + ' gal';
 }
 
 async function dcsSaveMeter(btnEl) {
