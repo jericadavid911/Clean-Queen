@@ -682,7 +682,7 @@ tbody tr:hover{background:var(--off-white);}
               <div style="display:flex;flex-direction:column;gap:10px">
                 <div>
                   <label class="fs-sm fw7 txt-navy">Actual Physical Cash Counted <span style="color:var(--bad)">*</span></label>
-                  <input class="input" type="number" step="0.01" id="dcsActualCash" style="margin-top:6px"/>
+                  <input class="input" type="number" step="0.01" id="dcsActualCash" style="margin-top:6px" oninput="updateDcsCashVariance()"/>
                 </div>
                 <label class="flex items-center gap-2 fs-sm" style="cursor:pointer">
                   <input type="checkbox" id="dcsVerifyGcashToggle" onchange="document.getElementById('dcsGcashVerifyField').style.display=this.checked?'block':'none'"/> Independently verify GCash amount
@@ -691,8 +691,9 @@ tbody tr:hover{background:var(--off-white);}
                   <label class="fs-sm fw7 txt-navy">Actual GCash Received/Verified</label>
                   <input class="input" type="number" step="0.01" id="dcsActualGcash" style="margin-top:6px"/>
                 </div>
-                <div class="flex justify-between fs-sm" style="border-top:1px solid var(--line);padding-top:8px"><span class="muted">Expected Cash</span><span class="badge" style="background:var(--surface-2);color:var(--muted)">⏳ Not yet configured</span></div>
-                <div class="flex justify-between fs-sm"><span class="muted">Cash Variance</span><span class="badge" style="background:var(--surface-2);color:var(--muted)">⏳ Not yet configured</span></div>
+                <div class="flex justify-between fs-sm" style="border-top:1px solid var(--line);padding-top:8px"><span class="muted">Expected Cash</span><strong id="dcsExpectedCash">—</strong></div>
+                <div class="flex justify-between fs-sm"><span class="muted">Cash Variance</span><strong id="dcsCashVariance">—</strong></div>
+                <div class="fs-xs muted" id="dcsCashVarianceNote" style="display:none">⏳ Tolerance for flagging this as a real discrepancy isn't set yet — showing the raw number only.</div>
               </div>
             </div>
           </div>
@@ -3141,6 +3142,12 @@ function renderDcsSales(sales, total) {
 }
 
 // ---- 3. Cash & Payment ----
+// Expected Cash = cash sales − cash-paid expenses only (no fixed float;
+// the drawer starts at zero — confirmed 2026-09-18). Cash Variance
+// tolerance (when a variance counts as a real discrepancy) is NOT yet
+// confirmed, so this shows the raw number with no match/mismatch badge.
+let dcsExpectedCashValue = 0;
+
 function renderDcsCash(cash, sheet) {
   document.getElementById('dcsRecCash').textContent = '₱' + Number(cash.recorded_cash).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('dcsRecGcash').textContent = '₱' + Number(cash.recorded_gcash).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -3148,12 +3155,27 @@ function renderDcsCash(cash, sheet) {
   document.getElementById('dcsRecExpCash').textContent = '₱' + Number(cash.recorded_expenses_cash).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('dcsRecExpTotal').textContent = '₱' + Number(cash.recorded_expenses_total).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
+  dcsExpectedCashValue = Number(cash.expected_cash);
+  document.getElementById('dcsExpectedCash').textContent = '₱' + dcsExpectedCashValue.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
   document.getElementById('dcsActualCash').value = sheet?.actual_cash_counted ?? '';
   if (sheet?.actual_gcash_verified != null) {
     document.getElementById('dcsVerifyGcashToggle').checked = true;
     document.getElementById('dcsGcashVerifyField').style.display = 'block';
     document.getElementById('dcsActualGcash').value = sheet.actual_gcash_verified;
   }
+  updateDcsCashVariance();
+}
+
+function updateDcsCashVariance() {
+  const actual = parseFloat(document.getElementById('dcsActualCash').value);
+  const varEl = document.getElementById('dcsCashVariance');
+  const noteEl = document.getElementById('dcsCashVarianceNote');
+  if (isNaN(actual)) { varEl.textContent = '—'; noteEl.style.display = 'none'; return; }
+  const variance = actual - dcsExpectedCashValue;
+  const sign = variance > 0 ? '+' : (variance < 0 ? '-' : '');
+  varEl.textContent = sign + '₱' + Math.abs(variance).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  noteEl.style.display = Math.abs(variance) > 0.004 ? 'block' : 'none';
 }
 
 // ---- 4. Backwash ----
