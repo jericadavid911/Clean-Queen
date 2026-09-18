@@ -719,6 +719,7 @@ tbody tr:hover{background:var(--off-white);}
             <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:4px">5️⃣ Purified Water Reconciliation</h3>
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px" class="fs-sm">
               <div class="flex justify-between"><span class="muted">Purified Gallons Used (Meter)</span><strong id="dcsPurUsed">—</strong></div>
+              <div class="fs-xs muted" id="dcsPurUsedBreakdown" style="text-align:right;margin-top:-4px"></div>
               <div class="flex justify-between"><span class="muted">Less: Gallons Sold</span><strong id="dcsPurSold">—</strong></div>
               <div class="flex justify-between" style="border-top:1px solid var(--line);padding-top:8px"><span class="muted">Unaccounted (before allowances)</span><strong id="dcsPurUnaccounted">—</strong></div>
               <div class="flex justify-between"><span class="muted">Wastage Allowance</span><strong id="dcsPurAllowance">—</strong></div>
@@ -1974,6 +1975,7 @@ async function updatePoPayment(paymentId) {
 const METER_PRODUCTS = [
   { key: 'alkaline', label: 'Alkaline Water', emoji: '💠' },
   { key: 'mineral',  label: 'Mineral Water',  emoji: '💧' },
+  { key: 'ice',      label: 'Ice',            emoji: '🧊' },
   { key: 'purified', label: 'Purified Water', emoji: '🌊' }
 ];
 let lastEodReport = null; // cached eod report for the currently viewed closing date, used by CSV/print
@@ -2000,7 +2002,7 @@ async function loadClosingDay() {
     const existing = existingByProduct[p.key];
     let opening = null;
     if (existing) {
-      opening = existing.opening_reading;
+      opening = existing.opening_liters;
     } else {
       const { data: lastClosing } = await db.rpc('cq_get_last_meter_closing', { p_product_type: p.key, p_before_date: date });
       opening = lastClosing; // null if this product has never been read before
@@ -2014,8 +2016,10 @@ async function loadClosingDay() {
   await loadPurifiedMeterCheck(date);
 }
 
-// ---- Purified Meter Check: meter gallons dispensed vs. gallons actually
-// sold that day. No wastage allowance — any nonzero difference is flagged. ----
+// ---- Purified Meter Check: (Purified AI meter raw − Ice usage) vs.
+// gallons actually sold that day. Ice water is diverted from Purified to
+// make ice, so it must be subtracted before comparing to sales — no
+// wastage allowance beyond that; any nonzero difference is flagged. ----
 let purCheckSoldGallons = null;
 
 async function loadPurifiedMeterCheck(date) {
@@ -2027,16 +2031,18 @@ async function loadPurifiedMeterCheck(date) {
 
 function renderPurifiedMeterCheck() {
   const purRow = document.querySelector('tr[data-product="purified"]');
-  const meterText = purRow?.querySelector('.meter-gallons')?.textContent || '—';
-  const meterGallons = parseFloat(meterText);
-  document.getElementById('purCheckMeter').textContent = meterText;
+  const iceRow = document.querySelector('tr[data-product="ice"]');
+  const rawPurified = parseFloat(purRow?.querySelector('.purified-ai-gallons')?.value || '');
+  const iceUsed = parseFloat(iceRow?.querySelector('.meter-gallons')?.textContent || '') || 0;
+  const netPurified = isNaN(rawPurified) ? NaN : rawPurified - iceUsed;
+  document.getElementById('purCheckMeter').textContent = isNaN(netPurified) ? '—' : netPurified.toFixed(1) + ' gal (raw ' + rawPurified.toFixed(1) + ' − ice ' + iceUsed.toFixed(1) + ')';
 
   const resultEl = document.getElementById('purCheckResult');
-  if (isNaN(meterGallons) || purCheckSoldGallons == null) {
-    resultEl.innerHTML = '<span class="muted">Enter today\'s closing reading to check</span>';
+  if (isNaN(netPurified) || purCheckSoldGallons == null) {
+    resultEl.innerHTML = '<span class="muted">Enter today\'s Purified reading to check</span>';
     return;
   }
-  const diff = meterGallons - purCheckSoldGallons;
+  const diff = netPurified - purCheckSoldGallons;
   if (Math.abs(diff) < 0.05) {
     resultEl.innerHTML = '<span class="badge" style="background:var(--good-bg);color:var(--good)">✅ Matches</span>';
   } else {
@@ -2045,9 +2051,27 @@ function renderPurifiedMeterCheck() {
 }
 
 function meterRowHtml(product, existing, opening) {
-  const noHistory = (opening === null || opening === undefined);
-  const closing = existing ? existing.closing_reading : '';
   const gallons = existing ? existing.gallons_dispensed : null;
+
+  // Purified has a digital "AI meter" that reports the day's dispensed
+  // gallons directly — no opening/closing/liters concept applies to it,
+  // unlike the physical Mineral/Alkaline/Ice meters.
+  if (product.key === 'purified') {
+    return `<tr data-product="purified" data-no-history="false">
+      <td class="fw7 txt-navy">${product.emoji} ${product.label}</td>
+      <td class="muted fs-xs">— (AI meter)</td>
+      <td class="muted fs-xs">—</td>
+      <td>
+        <input class="input purified-ai-gallons" type="number" step="0.1" value="${gallons !== null && gallons !== undefined ? Number(gallons) : ''}"
+               style="max-width:110px" placeholder="Gallons dispensed today" oninput="renderPurifiedMeterCheck()"/>
+      </td>
+      <td style="text-align:center" class="muted fs-xs">n/a</td>
+      <td><button class="btn btn-sm btn-navy" onclick="saveMeterRow(this)">Save</button></td>
+    </tr>`;
+  }
+
+  const noHistory = (opening === null || opening === undefined);
+  const closing = existing ? existing.closing_liters : '';
   const openingVal = noHistory ? '' : Number(opening);
   return `<tr data-product="${product.key}" data-no-history="${noHistory}">
     <td class="fw7 txt-navy">${product.emoji} ${product.label}</td>
@@ -2085,21 +2109,43 @@ function updateMeterGallons(closingInputEl) {
   const opening = parseFloat(tr.querySelector('.meter-opening').value);
   const closing = parseFloat(closingInputEl.value);
   const cell = tr.querySelector('.meter-gallons');
-  // Meters read liters; stored/generated gallons_dispensed = (closing - opening) / 18.9.
-  // Preview the same conversion here so it matches what saving will actually produce.
+  // Meters read liters; cq_save_meter_reading stores gallons_dispensed =
+  // (closing - opening) / 18.9. Preview the same conversion here so it
+  // matches what saving will actually produce.
   if (isNaN(opening) || isNaN(closing)) { cell.textContent = '—'; }
   else { cell.textContent = ((closing - opening) / 18.9).toFixed(1) + ' gal'; }
-  if (tr.dataset.product === 'purified') renderPurifiedMeterCheck();
+  // Ice usage is subtracted from Purified's raw AI-meter figure, so a
+  // change to Ice's dispensed gallons must also refresh that check.
+  if (tr.dataset.product === 'purified' || tr.dataset.product === 'ice') renderPurifiedMeterCheck();
 }
 
 async function saveMeterRow(btnEl) {
   const tr = btnEl.closest('tr');
   const product = tr.dataset.product;
+  const date = document.getElementById('closingDate').value;
+
+  // Purified's AI meter reports the day's dispensed gallons directly —
+  // no opening/closing/liters involved, unlike the physical meters.
+  if (product === 'purified') {
+    const gallonsInput = tr.querySelector('.purified-ai-gallons');
+    const gallons = parseFloat(gallonsInput.value);
+    if (isNaN(gallons)) return alert('Please enter today\'s gallons dispensed from the AI meter.');
+
+    btnEl.disabled = true; const origLabel = btnEl.textContent; btnEl.textContent = '…';
+    const { error } = await db.rpc('cq_save_purified_ai_reading', { p_date: date, p_gallons_dispensed: gallons });
+    btnEl.disabled = false;
+    if (error) { btnEl.textContent = origLabel; return alert('Error: ' + error.message); }
+
+    btnEl.textContent = '✓ Saved'; setTimeout(() => btnEl.textContent = origLabel, 1500);
+    refreshSummaryPanel(date, false);
+    renderPurifiedMeterCheck();
+    return;
+  }
+
   const noHistory = tr.dataset.noHistory === 'true';
   const resetChecked = tr.querySelector('.meter-reset').checked;
   const opening = parseFloat(tr.querySelector('.meter-opening').value);
   const closing = parseFloat(tr.querySelector('.meter-closing').value);
-  const date = document.getElementById('closingDate').value;
 
   if (isNaN(closing)) return alert('Please enter today\'s closing reading.');
   if ((noHistory || resetChecked) && isNaN(opening)) return alert('Please enter the starting (opening) reading.');
@@ -2116,8 +2162,8 @@ async function saveMeterRow(btnEl) {
   // Lock the row in as "saved": opening becomes read-only, reset checkbox clears.
   tr.dataset.noHistory = 'false';
   const openingInput = tr.querySelector('.meter-opening');
-  openingInput.value = data.opening_reading;
-  openingInput.dataset.orig = data.opening_reading;
+  openingInput.value = data.opening_liters;
+  openingInput.dataset.orig = data.opening_liters;
   openingInput.readOnly = true;
   openingInput.style.background = 'var(--off-white)';
   const resetCb = tr.querySelector('.meter-reset');
@@ -2126,7 +2172,7 @@ async function saveMeterRow(btnEl) {
 
   btnEl.textContent = '✓ Saved'; setTimeout(() => btnEl.textContent = origLabel, 1500);
   refreshSummaryPanel(date, false);
-  if (product === 'purified') renderPurifiedMeterCheck();
+  if (product === 'ice') renderPurifiedMeterCheck();
 }
 
 function updateSalesTotal() {
@@ -3199,6 +3245,12 @@ function renderDcsBackwashFromSheet(sheet) {
 // wastage allowance is carved out — any nonzero variance is a real flag.
 function renderDcsPurified(p) {
   document.getElementById('dcsPurUsed').textContent = p.gallons_used_meter != null ? Number(p.gallons_used_meter).toFixed(4) + ' gal' : 'No meter reading yet';
+  const breakdownEl = document.getElementById('dcsPurUsedBreakdown');
+  if (breakdownEl) {
+    breakdownEl.textContent = p.gallons_used_meter_raw != null
+      ? `AI meter raw: ${Number(p.gallons_used_meter_raw).toFixed(1)} gal − Ice: ${Number(p.ice_gallons_used || 0).toFixed(1)} gal`
+      : '';
+  }
   document.getElementById('dcsPurSold').textContent = Number(p.gallons_sold).toFixed(2) + ' gal';
   document.getElementById('dcsPurUnaccounted').textContent = p.unaccounted_before_allowances != null ? Number(p.unaccounted_before_allowances).toFixed(4) + ' gal' : '—';
   document.getElementById('dcsPurAllowance').textContent = Number(p.wastage_allowance).toFixed(2) + ' gal';
