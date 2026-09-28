@@ -560,6 +560,34 @@ tbody tr:hover{background:var(--off-white);}
           <div class="stat-card"><div class="stat-ic gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-val" id="invMovementsToday">—</div><div class="stat-lbl">Movements Today</div></div></div>
         </div>
 
+        <!-- ON HAND (above) vs IN CIRCULATION (below) -- these are two different
+             pools of the same physical assets. On-hand = what's sitting at the
+             station right now (Stock Levels table). In circulation = containers
+             and dispensers currently out with corporate/SME partners, tracked in
+             Container Loans. Owner's own framing (2026-09-18): "these stocks are
+             the ones on hand but not the ones circulated with our customers." -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="flex justify-between" style="align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+            <h3 style="font-family:var(--font-display);color:var(--navy);margin:0">📦 In Circulation (On Loan to Partners)</h3>
+            <button class="btn btn-sm" onclick="showSection('containerloans')">View Container Loans →</button>
+          </div>
+          <p class="fs-sm muted" style="margin-bottom:14px">Corporate/SME partners currently holding Clean Queen containers and dispensers — separate from what's sitting on the shelf above.</p>
+          <div id="circLoading" class="empty-state"><div class="spinner-inline"></div> Loading…</div>
+          <div id="circContent" style="display:none">
+            <div class="grid g4" style="gap:14px;margin-bottom:16px">
+              <div><div class="fs-xs muted">Gallons Out (Round+Slim)</div><div class="fw8 txt-navy fs-lg" id="circGallons">—</div></div>
+              <div><div class="fs-xs muted">Dispensers Out</div><div class="fw8 txt-navy fs-lg" id="circDispensers">—</div></div>
+              <div><div class="fs-xs muted">Partners Holding Stock</div><div class="fw8 txt-navy fs-lg" id="circPartners">—</div></div>
+              <div><div class="fs-xs muted">Est. Value in Circulation</div><div class="fw8 txt-navy fs-lg" id="circValue">—</div></div>
+            </div>
+            <table>
+              <thead><tr><th>Item</th><th>Qty Out</th><th>Partners</th><th>Unit Cost</th><th>Value</th></tr></thead>
+              <tbody id="circTableBody"></tbody>
+            </table>
+            <div id="circMissingCostNote" class="fs-xs muted" style="margin-top:8px;display:none"></div>
+          </div>
+        </div>
+
         <div class="card" style="margin-bottom:16px">
           <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px">Stock Levels</h3>
           <div id="invLoading" class="empty-state"><div class="spinner-inline"></div> Loading inventory…</div>
@@ -590,7 +618,7 @@ tbody tr:hover{background:var(--off-white);}
           <div id="clLoading" class="empty-state"><div class="spinner-inline"></div> Loading…</div>
           <div id="clEmpty" class="empty-state" style="display:none"><div class="ei">📦</div><p>No outstanding container loans.</p></div>
           <table id="clTable" style="display:none">
-            <thead><tr><th>Partner</th><th>Round</th><th>Slim</th><th>Last Activity</th><th></th></tr></thead>
+            <thead><tr><th>Partner</th><th>Round</th><th>Slim</th><th>Dispensers</th><th>Last Activity</th><th></th></tr></thead>
             <tbody id="clTableBody"></tbody>
           </table>
         </div>
@@ -605,7 +633,14 @@ tbody tr:hover{background:var(--off-white);}
             </div>
             <div>
               <label class="fs-sm fw7 txt-navy">Container</label>
-              <select class="input" id="clContainerType" style="margin-top:6px"><option value="round">Round</option><option value="slim">Slim</option></select>
+              <select class="input" id="clContainerType" style="margin-top:6px">
+                <option value="round">Round</option>
+                <option value="slim">Slim</option>
+                <option value="dispenser_big">Dispenser (Big)</option>
+                <option value="dispenser_minori">Dispenser (Minori)</option>
+                <option value="dispenser_small">Dispenser (Small)</option>
+                <option value="dispenser_kaisa_small">Dispenser (Kaisa Small)</option>
+              </select>
             </div>
             <div>
               <label class="fs-sm fw7 txt-navy">Action</label>
@@ -1694,6 +1729,13 @@ async function saveCustomerPriceOverride(productId) {
 // ==============================================================
 let clSelectedCustomerId = null;
 
+const CONTAINER_TYPE_LABELS = {
+  round: 'Round', slim: 'Slim',
+  dispenser_big: 'Dispenser (Big)', dispenser_minori: 'Dispenser (Minori)',
+  dispenser_small: 'Dispenser (Small)', dispenser_kaisa_small: 'Dispenser (Kaisa Small)'
+};
+function containerTypeLabel(t) { return CONTAINER_TYPE_LABELS[t] || t; }
+
 async function loadContainerLoans() {
   document.getElementById('clLoading').style.display = 'block';
   document.getElementById('clTable').style.display = 'none';
@@ -1708,11 +1750,15 @@ async function loadContainerLoans() {
     if (!row.balance) return; // skip zeroed-out balances
     if (!byCustomer.has(row.customer_id)) {
       byCustomer.set(row.customer_id, {
-        name: row.company_name || row.customer_name, round: 0, slim: 0, lastActivity: row.last_activity
+        name: row.company_name || row.customer_name, round: 0, slim: 0, dispensers: [], lastActivity: row.last_activity
       });
     }
     const c = byCustomer.get(row.customer_id);
-    c[row.container_type] = row.balance;
+    if (row.container_type === 'round' || row.container_type === 'slim') {
+      c[row.container_type] = row.balance;
+    } else {
+      c.dispensers.push(`${containerTypeLabel(row.container_type)}×${row.balance}`);
+    }
     if (new Date(row.last_activity) > new Date(c.lastActivity)) c.lastActivity = row.last_activity;
   });
 
@@ -1726,6 +1772,7 @@ async function loadContainerLoans() {
       <td class="fw7 txt-navy">${c.name}</td>
       <td>${c.round || 0}</td>
       <td>${c.slim || 0}</td>
+      <td class="fs-xs">${c.dispensers.join(', ') || '—'}</td>
       <td class="fs-xs muted">${new Date(c.lastActivity).toLocaleDateString()}</td>
       <td><button class="btn btn-sm" onclick="openContainerHistory('${id}', '${c.name.replace(/'/g,"\\'")}')">History</button></td>
     </tr>`).join('');
@@ -1782,7 +1829,7 @@ async function openContainerHistory(customerId, customerName) {
   document.getElementById('chModalList').innerHTML = (data || []).map(r => `
     <div class="flex justify-between fs-sm" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
       <div>
-        <div class="fw7 txt-navy">${r.container_type === 'round' ? 'Round' : 'Slim'} ${r.quantity_change > 0 ? '+' + r.quantity_change + ' (loaned out)' : r.quantity_change + ' (returned)'}</div>
+        <div class="fw7 txt-navy">${containerTypeLabel(r.container_type)} ${r.quantity_change > 0 ? '+' + r.quantity_change + ' (loaned out)' : r.quantity_change + ' (returned)'}</div>
         <div class="fs-xs muted">${new Date(r.created_at).toLocaleString()} · ${r.performed_by_name || 'Unknown'}${r.note ? ' · ' + r.note : ''}</div>
       </div>
       <div class="fw8 txt-navy">Bal: ${r.resulting_balance}</div>
@@ -2906,6 +2953,51 @@ async function loadInventory() {
   updateInventoryStats();
   refreshLowStockBadge();
   loadInventoryMovements();
+  loadContainerCirculation();
+}
+
+async function loadContainerCirculation() {
+  document.getElementById('circLoading').style.display = 'block';
+  document.getElementById('circContent').style.display = 'none';
+
+  const { data, error } = await db.rpc('cq_get_container_circulation_summary');
+  document.getElementById('circLoading').style.display = 'none';
+  if (error) { console.error(error); return; }
+
+  const rows = data || [];
+  document.getElementById('circContent').style.display = 'block';
+
+  const gallonTypes = ['round', 'slim'];
+  const gallons = rows.filter(r => gallonTypes.includes(r.container_type))
+    .reduce((s, r) => s + Number(r.total_balance), 0) * 5;
+  const dispensers = rows.filter(r => !gallonTypes.includes(r.container_type))
+    .reduce((s, r) => s + Number(r.total_balance), 0);
+  const partners = Math.max(...rows.map(r => Number(r.customers_holding) || 0), 0);
+  const knownValue = rows.reduce((s, r) => s + (r.total_value != null ? Number(r.total_value) : 0), 0);
+  const missingCost = rows.filter(r => r.total_value == null);
+
+  document.getElementById('circGallons').textContent = gallons.toLocaleString() + ' gal';
+  document.getElementById('circDispensers').textContent = dispensers.toLocaleString();
+  document.getElementById('circPartners').textContent = partners.toLocaleString();
+  document.getElementById('circValue').textContent = '₱' + knownValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) +
+    (missingCost.length ? '*' : '');
+
+  document.getElementById('circTableBody').innerHTML = rows.map(r => `
+    <tr>
+      <td class="fw7 txt-navy">${containerTypeLabel(r.container_type)}</td>
+      <td>${Number(r.total_balance).toLocaleString()}</td>
+      <td>${r.customers_holding}</td>
+      <td>${r.unit_cost != null ? '₱' + Number(r.unit_cost).toLocaleString() : '<span class="fs-xs muted">not set</span>'}</td>
+      <td>${r.total_value != null ? '₱' + Number(r.total_value).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '<span class="fs-xs muted">—</span>'}</td>
+    </tr>`).join('');
+
+  const noteEl = document.getElementById('circMissingCostNote');
+  if (missingCost.length) {
+    noteEl.style.display = 'block';
+    noteEl.textContent = '* Value excludes ' + missingCost.map(r => containerTypeLabel(r.container_type)).join(', ') + ' — no unit cost on file yet.';
+  } else {
+    noteEl.style.display = 'none';
+  }
 }
 
 function updateInventoryStats() {
